@@ -94,7 +94,126 @@
         .archive-link:hover { background: #f5f6f7; }
         .archive-link.active { background: #e9ecef; font-weight: 600; color: #000; }
 
-        /* 报告内容 */
+        /* 移动端优化样式 - 优先区块 */
+        .priority-section {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .section-icon { font-size: 20px; }
+        .section-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .section-body {
+            padding: 20px;
+            background: #fff;
+        }
+
+        /* 重点关注 - 红色警示 */
+        .alert-section .section-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: #fff;
+        }
+        .alert-section .section-body {
+            background: #fff5f5;
+            border: 2px solid #ffc9c9;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* 行动建议 - 蓝色强调 */
+        .action-section .section-header {
+            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+            color: #fff;
+        }
+        .action-section .section-body {
+            background: #f0f7ff;
+            border: 2px solid #d0ebff;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* 五维雷达总览 */
+        .radar-overview {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .radar-overview .section-header {
+            padding: 0 0 16px 0;
+            border-bottom: 1px solid #e0e3eb;
+        }
+        .radar-overview .section-header h2 { color: #333; }
+        .radar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            padding-top: 16px;
+        }
+        .radar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .radar-icon { font-size: 18px; }
+        .radar-name { font-weight: 500; color: #333; }
+        .radar-desc {
+            margin-left: auto;
+            font-size: 12px;
+            color: #787b86;
+        }
+
+        /* 折叠详情 */
+        .details-section { margin-bottom: 20px; }
+        .dim-details {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .dim-details summary {
+            padding: 16px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            list-style: none;
+        }
+        .dim-details summary::before {
+            content: "▶";
+            font-size: 12px;
+            color: #787b86;
+            margin-right: 8px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .dim-details[open] summary::before {
+            transform: rotate(90deg);
+        }
+        .dim-content {
+            padding: 0 20px 20px;
+            border-top: 1px solid #f0f3fa;
+        }
+
+        /* 报告内容样式 */
         .report-content h1 { font-size: 22px; margin-bottom: 16px; }
         .report-content h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e0e3eb; }
         .report-content h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; }
@@ -117,33 +236,15 @@
             border: 1px solid #e0e3eb;
         }
         .report-content tr:nth-child(even) { background: #fafafa; }
-        .report-content ul, .report-content ol { margin-left: 20px; margin-bottom: 12px; }
-        .report-content li { margin-bottom: 6px; }
-        .report-content code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
-        .report-content pre {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-size: 13px;
-            margin: 16px 0;
-        }
-        .report-content blockquote {
-            border-left: 4px solid #2962ff;
-            padding-left: 16px;
-            margin: 16px 0;
-            color: #555;
-        }
 
         /* 移动端适配 */
         @media (max-width: 768px) {
             .main-layout { flex-direction: column; }
             .sidebar { width: 100%; }
+            .radar-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .radar-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -151,7 +252,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 投资中枢 · 体检报告</h1>
-            <div class="header-meta">报告日期: 2026年03月24日 | 数据更新时间: 2026-03-27 14:18:14</div>
+            <div class="header-meta">报告日期: 2026年03月24日 | 数据更新时间: 2026-03-27 17:01:20</div>
             <div class="nav">
                 <a href="investment.html">最新报告</a>
                 <a href="index.html">← 返回ETF轮动</a>
@@ -167,9 +268,50 @@
 
                 </div>
             </div>
-            <div class="content">
-                <div class="report-content">
-                    <h1>光剑持仓体检报告 · 2026年3月24日</h1>
+            <div class="content report-content">
+                
+<!-- 移动端优化：核心信息置顶 -->
+<div class="mobile-optimized">
+    <!-- 本期重点关注 -->
+    <div class="priority-section alert-section">
+        <div class="section-header">
+            <span class="section-icon">🔥</span>
+            <h2>本期重点关注</h2>
+        </div>
+        <div class="section-body"></div>
+    </div>
+
+    <!-- 本期行动建议 -->
+    <div class="priority-section action-section">
+        <div class="section-header">
+            <span class="section-icon">⚡</span>
+            <h2>本期行动建议</h2>
+        </div>
+        <div class="section-body"></div>
+    </div>
+
+    <!-- 五维雷达总览 -->
+    <div class="radar-overview">
+        <div class="section-header">
+            <span class="section-icon">📊</span>
+            <h2>五维雷达总览</h2>
+        </div>
+        <div class="radar-grid"><div class="radar-item"><span class="radar-icon">🟡</span><span class="radar-name">波段仓状态</span><span class="radar-desc">4只被套</span></div><div class="radar-item"><span class="radar-icon">🟢</span><span class="radar-name">逻辑验证</span><span class="radar-desc">正常</span></div></div>
+        <div class="radar-nav-hint">👇 点击下方展开各维度详情</div>
+    </div>
+</div>
+
+<!-- 详细内容（折叠） -->
+<div class="details-section">
+    
+    
+</div>
+
+<!-- 原始完整报告 -->
+<div class="original-report">
+    <details class="dim-details original-details">
+        <summary>📄 查看完整原始报告</summary>
+        <div class="dim-content original-content"><h1>光剑持仓体检报告 · 2026年3月24日</h1>
 <h2>Jedi 投资组合定期分析</h2>
 <hr />
 <h2>执行摘要</h2>
@@ -1309,8 +1451,10 @@ TOP3集中度: 55.2% ████████████████ 🔴 过�
 <hr />
 <p><strong>报告生成时间</strong>：2026年3月24日 21:15<br />
 <strong>下次体检预约</strong>：2026年4月第4周<br />
-<strong>数据有效期</strong>：3-5个交易日（价格变动后需重新计算仓位占比）</p>
-                </div>
+<strong>数据有效期</strong>：3-5个交易日（价格变动后需重新计算仓位占比）</p></div>
+    </details>
+</div>
+
             </div>
         </div>
     </div>
