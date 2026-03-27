@@ -8,11 +8,16 @@ ETF轮动策略页面自动更新脚本
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-import tushare as ts
 from datetime import datetime, timedelta
 import subprocess
 import os
 import sys
+import re
+from pathlib import Path
+
+# 添加项目路径，导入配置
+sys.path.insert(0, '/Users/jediyang/ClaudeCode/Project-Makemoney/lightsaber')
+from config.settings import TUSHARE_TOKEN
 
 # ============ 配置 ============
 ETF_POOL = {
@@ -21,6 +26,8 @@ ETF_POOL = {
     '513100.SH': '纳指ETF',
     '518880.SH': '黄金ETF'
 }
+
+CODE_TO_SYMBOL = {v: k for k, v in ETF_POOL.items()}
 
 # 三因子参数
 BIAS_N = 20
@@ -33,10 +40,22 @@ WEIGHT_EFFICIENCY = 0.40
 # Git配置
 GIT_REPO_PATH = os.path.dirname(os.path.abspath(__file__))
 
+# 交易记录目录
+MEMORY_DIR = Path("/Users/jediyang/.claude/projects/-Users-jediyang-ClaudeCode-Project-Makemoney/memory")
+
+# OpenD配置
+OPEND_HOST = os.environ.get('OPEND_HOST', '127.0.0.1')
+OPEND_PORT = int(os.environ.get('OPEND_PORT', '11111'))
+
 
 def get_etf_data_tushare(symbol, start_date, end_date):
     """使用tushare获取ETF历史数据"""
     try:
+        import tushare as ts
+
+        # 使用项目配置的token
+        ts.set_token(TUSHARE_TOKEN)
+
         df = ts.pro_bar(ts_code=symbol, asset='FD',
                         start_date=start_date.replace('-', ''),
                         end_date=end_date.replace('-', ''))
@@ -48,8 +67,103 @@ def get_etf_data_tushare(symbol, start_date, end_date):
         df = df.rename(columns={'open': 'open', 'high': 'high', 'low': 'low', 'close': 'close', 'vol': 'volume'})
         return df[['open', 'high', 'low', 'close', 'volume']]
     except Exception as e:
-        print(f"❌ 获取 {symbol} 失败: {e}")
+        print(f"    ⚠️ Tushare失败: {e}")
         return None
+
+
+def get_etf_data_akshare(symbol, start_date, end_date):
+    """使用akshare获取ETF历史数据"""
+    try:
+        import akshare as ak
+        code = symbol.split('.')[0]
+
+        # 获取ETF历史数据
+        df = ak.fund_etf_hist_em(symbol=code, period="daily",
+                                  start_date=start_date.replace('-', ''),
+                                  end_date=end_date.replace('-', ''),
+                                  adjust="qfq")
+        if df is None or df.empty:
+            return None
+
+        df = df.sort_values('日期')
+        df['日期'] = pd.to_datetime(df['日期'])
+        df = df.set_index('日期')
+        df = df.rename(columns={
+            '开盘': 'open', '最高': 'high', '最低': 'low',
+            '收盘': 'close', '成交量': 'volume'
+        })
+        return df[['open', 'high', 'low', 'close', 'volume']]
+    except Exception as e:
+        print(f"    ⚠️ AKShare失败: {e}")
+        return None
+
+
+def get_etf_data_opend(symbol, start_date, end_date):
+    """使用富途OpenD获取ETF历史数据"""
+    try:
+        from futu import OpenQuoteContext
+
+        code = symbol.split('.')[0]
+        # 确定市场
+        if symbol.endswith('.SH'):
+            market = 'SH'
+        elif symbol.endswith('.SZ'):
+            market = 'SZ'
+        else:
+            return None
+
+        quote_ctx = OpenQuoteContext(host=OPEND_HOST, port=OPEND_PORT)
+
+        ret, data, page_req_key = quote_ctx.request_history_kline(
+            f"{market}.{code}",
+            start=start_date,
+            end=end_date,
+            ktype='K_DAY'
+        )
+
+        quote_ctx.close()
+
+        if ret != 0 or data is None or data.empty:
+            return None
+
+        data = data.sort_values('time_key')
+        data['time_key'] = pd.to_datetime(data['time_key'])
+        data = data.set_index('time_key')
+        data = data.rename(columns={
+            'open': 'open', 'high': 'high', 'low': 'low',
+            'close': 'close', 'volume': 'volume'
+        })
+        return data[['open', 'high', 'low', 'close', 'volume']]
+    except Exception as e:
+        print(f"    ⚠️ OpenD失败: {e}")
+        return None
+
+
+def get_etf_data(symbol, start_date, end_date):
+    """获取ETF数据，按优先级尝试多个数据源"""
+    # 尝试1: Tushare
+    print(f"    尝试 Tushare...")
+    df = get_etf_data_tushare(symbol, start_date, end_date)
+    if df is not None and not df.empty:
+        print(f"    ✓ Tushare成功")
+        return df
+
+    # 尝试2: AKShare
+    print(f"    尝试 AKShare...")
+    df = get_etf_data_akshare(symbol, start_date, end_date)
+    if df is not None and not df.empty:
+        print(f"    ✓ AKShare成功")
+        return df
+
+    # 尝试3: OpenD
+    print(f"    尝试 OpenD...")
+    df = get_etf_data_opend(symbol, start_date, end_date)
+    if df is not None and not df.empty:
+        print(f"    ✓ OpenD成功")
+        return df
+
+    print(f"    ❌ 所有数据源都失败")
+    return None
 
 
 def calc_weekly_change(df):
@@ -110,6 +224,119 @@ def calc_efficiency_momentum(df):
     return float(momentum * efficiency_ratio)
 
 
+def parse_trade_records():
+    """解析交易记录文件，返回持仓状态"""
+    trades = []
+
+    if not MEMORY_DIR.exists():
+        return trades
+
+    # 查找所有交易记录文件
+    trade_files = list(MEMORY_DIR.glob("trade_*.md"))
+
+    for f in trade_files:
+        try:
+            text = f.read_text(encoding='utf-8')
+
+            # 解析交易日期
+            date_match = re.search(r'\*\*交易日期\*\*[:：]\s*(\d{4}-\d{2}-\d{2})', text)
+            if not date_match:
+                continue
+            trade_date = date_match.group(1)
+
+            # 解析标的
+            code_match = re.search(r'\*\*标的\*\*[:：]\s*(\d+)\s+(.+)', text)
+            if not code_match:
+                continue
+            code = code_match.group(1)
+            name = code_match.group(2).strip()
+
+            # 解析操作
+            action_match = re.search(r'\*\*操作\*\*[:：]\s*(\w+)', text)
+            action = action_match.group(1) if action_match else "买入"
+
+            # 解析价格
+            price_match = re.search(r'\*\*价格\*\*[:：]\s*([\d.]+)', text)
+            if not price_match:
+                continue
+            price = float(price_match.group(1))
+
+            # 解析数量
+            qty_match = re.search(r'\*\*数量\*\*[:：]\s*([\d,]+)', text)
+            if not qty_match:
+                continue
+            quantity = int(qty_match.group(1).replace(',', ''))
+
+            trades.append({
+                'date': trade_date,
+                'code': code,
+                'name': name,
+                'action': action,
+                'price': price,
+                'quantity': quantity
+            })
+        except Exception as e:
+            print(f"  ⚠️ 解析 {f.name} 失败: {e}")
+            continue
+
+    # 按日期排序
+    trades.sort(key=lambda x: x['date'])
+    return trades
+
+
+def calc_position(trades, etf_data_dict):
+    """计算当前持仓和收益"""
+    if not trades:
+        return None
+
+    # 汇总持仓（假设只有买入，简单处理）
+    positions = {}
+    for t in trades:
+        code = t['code']
+        if code not in positions:
+            positions[code] = {'quantity': 0, 'cost': 0, 'name': t['name']}
+
+        if t['action'] == '买入':
+            # 计算加权平均成本
+            old_qty = positions[code]['quantity']
+            old_cost = positions[code]['cost']
+            new_qty = t['quantity']
+            new_price = t['price']
+
+            total_cost = old_qty * old_cost + new_qty * new_price
+            total_qty = old_qty + new_qty
+
+            positions[code]['quantity'] = total_qty
+            positions[code]['cost'] = total_cost / total_qty if total_qty > 0 else 0
+
+    # 获取最新价格计算收益
+    position_list = []
+    for code, pos in positions.items():
+        # 找到对应的symbol
+        symbol = None
+        for sym, name in ETF_POOL.items():
+            if code in sym:
+                symbol = sym
+                break
+
+        if symbol and symbol in etf_data_dict:
+            latest_price = etf_data_dict[symbol]['close'].iloc[-1]
+            cost = pos['cost']
+            pnl_pct = (latest_price / cost - 1) * 100 if cost > 0 else 0
+
+            position_list.append({
+                'code': code,
+                'name': pos['name'],
+                'quantity': pos['quantity'],
+                'cost': cost,
+                'price': latest_price,
+                'pnl_pct': pnl_pct
+            })
+
+    # 返回第一个持仓（假设单持仓策略）
+    return position_list[0] if position_list else None
+
+
 def calc_all_factors(etf_data_dict):
     factors = {}
     for symbol, name in ETF_POOL.items():
@@ -160,7 +387,7 @@ def zscore_normalize(factors):
     return factors
 
 
-def generate_html(factors, trade_date, next_date, update_time):
+def generate_html(factors, trade_date, next_date, update_time, position=None, trades=None):
     """生成HTML页面"""
     sorted_etfs = sorted(factors.items(), key=lambda x: x[1]['total_score'], reverse=True)
 
@@ -186,6 +413,55 @@ def generate_html(factors, trade_date, next_date, update_time):
 
     # 获取排名第1的ETF作为建议
     top_etf = sorted_etfs[0][1]
+
+    # 生成持仓HTML
+    if position:
+        pnl_class = 'pnl-up' if position['pnl_pct'] >= 0 else 'pnl-down'
+        pnl_str = f"+{position['pnl_pct']:.2f}%" if position['pnl_pct'] >= 0 else f"{position['pnl_pct']:.2f}%"
+        holding_html = f"""        <div class="holding-card">
+            <div>
+                <div class="holding-label">持仓标的</div>
+                <div class="holding-name">{position['name']}</div>
+                <div class="holding-code">{position['code']} · {position['quantity']:,}股 · 成本{position['cost']:.4f}</div>
+            </div>
+            <div class="holding-pnl">
+                <div class="pnl-value {pnl_class}">{pnl_str}</div>
+                <div class="holding-label">持仓收益</div>
+            </div>
+        </div>"""
+        signal_action = "signal-hold"
+        signal_text = "HOLD"
+        signal_detail = f"当前持仓{position['name']} ({position['code']})<br>继续持仓等待，下次评估: {next_date}"
+    else:
+        holding_html = f"""        <div class="holding-card">
+            <div>
+                <div class="holding-label">持仓标的</div>
+                <div class="holding-name">空仓</div>
+                <div class="holding-code">等待建仓</div>
+            </div>
+            <div class="holding-pnl">
+                <div class="pnl-value pnl-flat">0.00%</div>
+                <div class="holding-label">持仓收益</div>
+            </div>
+        </div>"""
+        signal_action = "signal-buy"
+        signal_text = "BUY"
+        signal_detail = f"当前空仓 → 买入{top_etf['name']} ({top_etf['code']})<br>目标仓位: 100%"
+
+    # 生成交易记录HTML
+    if trades:
+        trade_items = []
+        for t in trades:
+            trade_items.append(f"""            <div class="trade-item">
+                <div class="trade-date">{t['date']}</div>
+                <div class="trade-etfs">
+                    <span class="trade-in">买入 {t['name']}</span>
+                </div>
+                <div class="trade-price">{t['price']:.4f}<br><small>{t['quantity']:,}股</small></div>
+            </div>""")
+        trade_list_html = '\n'.join(trade_items)
+    else:
+        trade_list_html = '            <div class="trade-item"><div style="text-align:center;width:100%;color:#787b86;font-size:13px;">暂无交易记录</div></div>'
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -432,26 +708,15 @@ def generate_html(factors, trade_date, next_date, update_time):
         <div class="section-title">交易建议</div>
         <div class="signal-card">
             <div class="signal-label">SIGNAL</div>
-            <div class="signal-action signal-buy">BUY</div>
+            <div class="signal-action {signal_action}">{signal_text}</div>
             <div class="signal-detail">
-                当前空仓 → 买入{top_etf['name']} ({top_etf['code']})<br>
-                目标仓位: 100%
+                {signal_detail}
             </div>
         </div>
 
         <!-- 当前持仓 -->
         <div class="section-title">当前持仓</div>
-        <div class="holding-card">
-            <div>
-                <div class="holding-label">持仓标的</div>
-                <div class="holding-name">空仓</div>
-                <div class="holding-code">等待建仓</div>
-            </div>
-            <div class="holding-pnl">
-                <div class="pnl-value pnl-flat">0.00%</div>
-                <div class="holding-label">持仓收益</div>
-            </div>
-        </div>
+{holding_html}
 
         <!-- 策略表现 -->
         <div class="section-title">策略表现 (2019-2026)</div>
@@ -479,9 +744,7 @@ def generate_html(factors, trade_date, next_date, update_time):
         <!-- 交易记录 -->
         <div class="section-title">交易记录</div>
         <div class="trade-list">
-            <div class="trade-item">
-                <div style="text-align:center;width:100%;color:#787b86;font-size:13px;">暂无交易记录</div>
-            </div>
+{trade_list_html}
         </div>
 
         <!-- 底部 -->
@@ -550,7 +813,7 @@ def main():
     etf_data = {}
     for symbol, name in ETF_POOL.items():
         print(f"  获取 {name} ({symbol})...")
-        df = get_etf_data_tushare(symbol, start_date, end_date)
+        df = get_etf_data(symbol, start_date, end_date)
         if df is not None:
             etf_data[symbol] = df
             weekly = calc_weekly_change(df)
@@ -572,9 +835,29 @@ def main():
         weekly_str = f"{f['weekly']:+.2f}%"
         print(f"  {i}. {f['name']} | 周{weekly_str} | 得分: {f['total_score']:.3f}")
 
+    # 读取交易记录并计算持仓
+    print("\n读取交易记录...")
+    trades = parse_trade_records()
+    position = calc_position(trades, etf_data)
+
+    if position:
+        print(f"  当前持仓: {position['name']} ({position['code']})")
+        print(f"  持仓数量: {position['quantity']:,}股")
+        print(f"  成本价: {position['cost']:.4f}")
+        print(f"  当前价: {position['price']:.4f}")
+        pnl_str = f"+{position['pnl_pct']:.2f}%" if position['pnl_pct'] >= 0 else f"{position['pnl_pct']:.2f}%"
+        print(f"  持仓收益: {pnl_str}")
+    else:
+        print("  当前空仓")
+        print(f"  ETF数据键: {list(etf_data.keys())}")
+        if '159949.SZ' in etf_data:
+            df = etf_data['159949.SZ']
+            print(f"  159949数据:\n{df[['close']].tail(3)}")
+            print(f"  最新价: {df['close'].iloc[-1]}")
+
     # 生成HTML
     print("\n正在生成HTML页面...")
-    html = generate_html(factors, end_date, next_date, update_time)
+    html = generate_html(factors, end_date, next_date, update_time, position, trades)
 
     # 保存文件
     html_path = os.path.join(GIT_REPO_PATH, 'index.html')

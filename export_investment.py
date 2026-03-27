@@ -2,6 +2,12 @@
 """
 投资中枢静态导出脚本
 功能：读取Markdown报告 → 渲染HTML → 生成静态页面 → git推送
+
+【重要原则】
+- 本脚本只读取 Markdown 源文件，绝不修改它们
+- 历史报告（持仓体检报告_YYYYMMDD.md）是只读快照，不可回溯修改
+- 当日交易应记录到 memory/ 目录，或在次日生成新报告时纳入
+
 用法：python3 export_investment.py
 """
 
@@ -39,6 +45,34 @@ def get_reports() -> list[dict]:
             except ValueError:
                 continue
     return sorted(reports, key=lambda x: x["date_str"], reverse=True)
+
+
+def get_html_reports() -> list[dict]:
+    """扫描已生成的HTML报告，按时间倒序"""
+    reports = []
+    # 匹配 investment_YYYYMMDD_HHMMSS.html 格式
+    pattern = re.compile(r"investment_(\d{8})_(\d{6})\.html$")
+    for f in ETF_DASHBOARD_DIR.glob("investment_*.html"):
+        if f.name == "investment.html":
+            continue
+        m = pattern.match(f.name)
+        if m:
+            date_str = m.group(1)
+            time_str = m.group(2)
+            try:
+                dt = datetime.strptime(f"{date_str}_{time_str}", "%Y%m%d_%H%M%S")
+                reports.append({
+                    "filename": f.name,
+                    "date_str": date_str,
+                    "time_str": time_str,
+                    "datetime": dt,
+                    "date_display": dt.strftime("%Y年%m月%d日 %H:%M"),
+                    "path": f,
+                })
+            except ValueError:
+                continue
+    # 按时间倒序排列
+    return sorted(reports, key=lambda x: x["datetime"], reverse=True)
 
 
 def render_md(path: Path) -> str:
@@ -148,13 +182,13 @@ def extract_simple_tables(text: str) -> list:
     return tables
 
 
-def generate_nav_html(report: dict, reports: list) -> str:
+def generate_nav_html(report: dict, html_reports: list, current_filename: str) -> str:
     """生成侧边栏导航HTML"""
     # 生成历史报告链接
     history_links = ""
-    for r in reports:
-        active_class = "active" if r["date_str"] == report["date_str"] else ""
-        history_links += f'<a href="investment_{r["date_str"]}.html" class="nav-link {active_class}">{r["date_display"]}</a>'
+    for r in html_reports:
+        active_class = "active" if r["filename"] == current_filename else ""
+        history_links += f'<a href="{r["filename"]}" class="nav-link {active_class}">{r["date_display"]}</a>'
 
     # 本报告导航链接 - 重要内容放前面
     toc_links = """
@@ -329,7 +363,7 @@ def generate_dimension_section(dim_id: str, title: str, content: str) -> str:
 """
 
 
-def generate_report_html(report: dict, reports: list) -> str:
+def generate_report_html(report: dict, html_reports: list, current_filename: str) -> str:
     """生成单个报告页面HTML - 朴素长文风格"""
 
     # 读取原始内容并解析
@@ -337,7 +371,7 @@ def generate_report_html(report: dict, reports: list) -> str:
     sections = parse_report_sections(raw_text)
 
     # 生成导航
-    nav_html = generate_nav_html(report, reports)
+    nav_html = generate_nav_html(report, html_reports, current_filename)
 
     # 生成各部分内容
     focus_html = generate_focus_section(sections["focus"])
@@ -803,13 +837,9 @@ def generate_report_html(report: dict, reports: list) -> str:
 </html>"""
 
 
-def generate_index_html(reports: list) -> str:
+def generate_index_html(report: dict, html_reports: list, latest_html_filename: str) -> str:
     """生成投资中枢首页（最新报告）"""
-    if not reports:
-        return "<p>暂无报告</p>"
-
-    latest = reports[0]
-    return generate_report_html(latest, reports)
+    return generate_report_html(report, html_reports, latest_html_filename)
 
 
 def git_push():
@@ -846,37 +876,59 @@ def main():
     print("投资中枢静态导出")
     print("=" * 60)
 
-    # 扫描报告
+    # 扫描MD报告
     print("\n扫描体检报告...")
-    reports = get_reports()
-    print(f"发现 {len(reports)} 份报告")
+    md_reports = get_reports()
+    print(f"发现 {len(md_reports)} 份MD报告")
 
-    if not reports:
+    if not md_reports:
         print("❌ 没有找到体检报告")
         return False
 
-    # 生成首页（最新报告）
+    # 扫描已存在的HTML报告
+    html_reports = get_html_reports()
+    print(f"发现 {len(html_reports)} 份已生成的HTML报告")
+
+    # 获取最新MD报告
+    latest_md = md_reports[0]
+    today = datetime.now()
+    timestamp = today.strftime('%Y%m%d_%H%M%S')
+
+    # 生成新的历史报告页面（带时间戳，永不覆盖）
+    print(f"\n生成历史报告页面: {timestamp}...")
+    history_filename = f"investment_{timestamp}.html"
+    history_path = ETF_DASHBOARD_DIR / history_filename
+
+    # 为最新报告生成HTML（添加到历史列表的开头）
+    new_report_info = {
+        "filename": history_filename,
+        "date_str": today.strftime('%Y%m%d'),
+        "time_str": today.strftime('%H%M%S'),
+        "datetime": today,
+        "date_display": today.strftime("%Y年%m月%d日 %H:%M"),
+        "path": history_path,
+    }
+
+    # 生成最新历史报告HTML
+    html = generate_report_html(latest_md, [new_report_info] + html_reports, history_filename)
+    with open(history_path, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f"✅ {history_path}")
+
+    # 更新首页（investment.html），指向最新生成的历史页面
     print("\n生成投资中枢首页...")
-    index_html = generate_index_html(reports)
+    index_html = generate_index_html(latest_md, [new_report_info] + html_reports, history_filename)
     index_path = ETF_DASHBOARD_DIR / "investment.html"
     with open(index_path, 'w', encoding='utf-8') as f:
         f.write(index_html)
     print(f"✅ {index_path}")
-
-    # 生成历史报告页面
-    print("\n生成历史报告页面...")
-    for report in reports:
-        html = generate_report_html(report, reports)
-        path = ETF_DASHBOARD_DIR / f"investment_{report['date_str']}.html"
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(html)
-        print(f"✅ {report['date_display']} -> {path.name}")
 
     # Git推送
     print("\n推送到GitHub...")
     if git_push():
         print("\n🎉 导出完成！")
         print(f"投资中枢: https://smiling-jedi.github.io/etf-dashboard-/investment.html")
+        print(f"本次报告: https://smiling-jedi.github.io/etf-dashboard-/{history_filename}")
         return True
     else:
         print("\n⚠️  页面已生成，但推送失败")
