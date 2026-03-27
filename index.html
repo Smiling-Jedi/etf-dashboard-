@@ -31,6 +31,12 @@
             font-size: 13px;
             color: #787b86;
         }
+        .header-time {
+            font-size: 13px;
+            color: #2962ff;
+            font-weight: 500;
+            margin-top: 4px;
+        }
 
         /* 区块标题 */
         .section-title {
@@ -42,9 +48,9 @@
             letter-spacing: 0.5px;
         }
 
-        /* 涨跌幅颜色 */
-        .change-up { color: #00c853; }
-        .change-down { color: #ff5252; }
+        /* 涨跌幅颜色 - 红涨绿跌（A股习惯）*/
+        .change-up { color: #ff5252; }
+        .change-down { color: #00c853; }
         .change-col { text-align: right; font-size: 13px; }
 
         /* 排名表格 */
@@ -214,7 +220,7 @@
         <div class="header">
             <h1>ETF轮动策略</h1>
             <div class="header-meta">评估日期: 2026-03-27 | 下次: 2026-04-03</div>
-            <div class="header-meta" style="margin-top:4px;color:#2962ff;font-weight:500;">数据更新: 2026-03-27 15:30:25</div>
+            <div class="header-time">数据更新: 2026-03-27 13:45:06</div>
         </div>
 
         <!-- 本周评分排名 -->
@@ -232,26 +238,26 @@
                 <tr>
                     <td><span class="rank-num rank-1">1</span></td>
                     <td><span class="etf-name">创业板50ETF</span><span class="etf-code">159949</span></td>
-                    <td class="change-col"><span class="change-up">+3.21%</span></td>
-                    <td style="text-align:right"><span class="score score-positive">0.871</span></td>
+                    <td class="change-col"><span class="change-down">-0.96%</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.868</span></td>
                 </tr>
                 <tr>
                     <td><span class="rank-num rank-2">2</span></td>
                     <td><span class="etf-name">红利低波ETF</span><span class="etf-code">512890</span></td>
-                    <td class="change-col"><span class="change-up">+1.85%</span></td>
-                    <td style="text-align:right"><span class="score score-positive">0.720</span></td>
+                    <td class="change-col"><span class="change-down">-1.33%</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.706</span></td>
                 </tr>
                 <tr>
                     <td><span class="rank-num rank-3">3</span></td>
                     <td><span class="etf-name">纳指ETF</span><span class="etf-code">513100</span></td>
-                    <td class="change-col"><span class="change-down">-0.52%</span></td>
-                    <td style="text-align:right"><span class="score score-positive">0.012</span></td>
+                    <td class="change-col"><span class="change-down">-2.72%</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.031</span></td>
                 </tr>
                 <tr>
                     <td><span class="rank-num rank-4">4</span></td>
                     <td><span class="etf-name">黄金ETF</span><span class="etf-code">518880</span></td>
-                    <td class="change-col"><span class="change-down">-2.15%</span></td>
-                    <td style="text-align:right"><span class="score score-negative">-1.603</span></td>
+                    <td class="change-col"><span class="change-down">-6.68%</span></td>
+                    <td style="text-align:right"><span class="score score-negative">-1.604</span></td>
                 </tr>
             </tbody>
         </table>
