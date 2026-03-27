@@ -156,16 +156,16 @@ def generate_nav_html(report: dict, reports: list) -> str:
         active_class = "active" if r["date_str"] == report["date_str"] else ""
         history_links += f'<a href="investment_{r["date_str"]}.html" class="nav-link {active_class}">{r["date_display"]}</a>'
 
-    # 本报告导航链接
+    # 本报告导航链接 - 重要内容放前面
     toc_links = """
+<a href="#focus" class="nav-link" style="border-left-color:#ff5252;color:#ff5252;">本期重点关注</a>
+<a href="#actions" class="nav-link" style="border-left-color:#00c853;color:#00c853;">本期行动建议</a>
 <a href="#assets" class="nav-link">总资产计算</a>
 <a href="#dim1" class="nav-link highlight">维度一：集中度风险</a>
 <a href="#dim2" class="nav-link highlight">维度二：波段仓状态</a>
 <a href="#dim3" class="nav-link highlight">维度三：投资逻辑验证</a>
 <a href="#dim4" class="nav-link highlight">维度四：归因分析</a>
 <a href="#dim5" class="nav-link highlight">维度五：组合健康度预判</a>
-<a href="#actions" class="nav-link">本期行动建议</a>
-<a href="#focus" class="nav-link">本期重点关注</a>
 <a href="#footer" class="nav-link">数据说明</a>
 """
 
