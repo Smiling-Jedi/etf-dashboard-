@@ -705,6 +705,7 @@ def generate_report_html(report: dict, reports: list) -> str:
             .sidebar {{
                 width: 100%;
                 order: -1;
+                position: static;
             }}
 
             .sidebar-card {{
