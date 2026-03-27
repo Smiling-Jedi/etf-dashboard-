@@ -501,12 +501,16 @@ def generate_report_html(report: dict, reports: list) -> str:
         .main-layout {{
             display: flex;
             gap: 40px;
+            align-items: flex-start;
         }}
 
-        /* 左侧边栏 */
+        /* 左侧边栏 - sticky 固定 */
         .sidebar {{
             width: 200px;
             flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
         }}
 
         .sidebar-card {{
