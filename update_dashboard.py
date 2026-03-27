@@ -48,31 +48,24 @@ def get_etf_data_tushare(symbol, start_date, end_date):
         df = df.rename(columns={'open': 'open', 'high': 'high', 'low': 'low', 'close': 'close', 'vol': 'volume'})
         return df[['open', 'high', 'low', 'close', 'volume']]
     except Exception as e:
-        print(f"获取 {symbol} 失败: {e}")
+        print(f"❌ 获取 {symbol} 失败: {e}")
         return None
 
 
-def calc_changes(df):
-    """计算日/月/年涨跌幅"""
-    if df is None or len(df) < 2:
-        return 0, 0, 0
+def calc_weekly_change(df):
+    """计算周涨跌幅（本周五 vs 上周五）"""
+    if df is None or len(df) < 6:
+        return 0
 
     latest = df['close'].iloc[-1]
+    # 找上周五（5个交易日前的收盘价）
+    if len(df) >= 6:
+        last_friday = df['close'].iloc[-6]  # 上周最后一个交易日
+    else:
+        last_friday = df['close'].iloc[0]
 
-    # 日涨跌
-    daily = (latest / df['close'].iloc[-2] - 1) * 100 if len(df) >= 2 else 0
-
-    # 月涨跌（约20个交易日）
-    monthly = 0
-    if len(df) >= 20:
-        monthly = (latest / df['close'].iloc[-20] - 1) * 100
-
-    # 年涨跌（约250个交易日）
-    yearly = 0
-    if len(df) >= 250:
-        yearly = (latest / df['close'].iloc[-250] - 1) * 100
-
-    return daily, monthly, yearly
+    weekly = (latest / last_friday - 1) * 100
+    return weekly
 
 
 def calc_bias_momentum(close_prices):
@@ -126,15 +119,13 @@ def calc_all_factors(etf_data_dict):
         if len(df) < max(BIAS_N, SLOPE_N, MOMENTUM_DAY):
             continue
 
-        # 计算涨跌幅
-        daily, monthly, yearly = calc_changes(df)
+        # 计算周涨跌幅
+        weekly = calc_weekly_change(df)
 
         factors[symbol] = {
             'name': name,
             'code': symbol.split('.')[0],
-            'daily': daily,
-            'monthly': monthly,
-            'yearly': yearly,
+            'weekly': weekly,
             'bias': calc_bias_momentum(df['close']),
             'slope': calc_slope_momentum(df['close']),
             'efficiency': calc_efficiency_momentum(df)
@@ -169,7 +160,7 @@ def zscore_normalize(factors):
     return factors
 
 
-def generate_html(factors, trade_date, next_date):
+def generate_html(factors, trade_date, next_date, update_time):
     """生成HTML页面"""
     sorted_etfs = sorted(factors.items(), key=lambda x: x[1]['total_score'], reverse=True)
 
@@ -178,21 +169,15 @@ def generate_html(factors, trade_date, next_date):
     rank_colors = ['rank-1', 'rank-2', 'rank-3', 'rank-4']
 
     for i, (symbol, f) in enumerate(sorted_etfs):
-        daily_class = 'change-up' if f['daily'] >= 0 else 'change-down'
-        monthly_class = 'change-up' if f['monthly'] >= 0 else 'change-down'
-        yearly_class = 'change-up' if f['yearly'] >= 0 else 'change-down'
+        weekly_class = 'change-up' if f['weekly'] >= 0 else 'change-down'
         score_class = 'score-positive' if f['total_score'] >= 0 else 'score-negative'
 
-        daily_str = f"+{f['daily']:.2f}%" if f['daily'] >= 0 else f"{f['daily']:.2f}%"
-        monthly_str = f"+{f['monthly']:.2f}%" if f['monthly'] >= 0 else f"{f['monthly']:.2f}%"
-        yearly_str = f"+{f['yearly']:.2f}%" if f['yearly'] >= 0 else f"{f['yearly']:.2f}%"
+        weekly_str = f"+{f['weekly']:.2f}%" if f['weekly'] >= 0 else f"{f['weekly']:.2f}%"
 
         row = f"""                <tr>
                     <td><span class="rank-num {rank_colors[i]}">{i+1}</span></td>
                     <td><span class="etf-name">{f['name']}</span><span class="etf-code">{f['code']}</span></td>
-                    <td class="change-col"><span class="{daily_class}">{daily_str}</span></td>
-                    <td class="change-col"><span class="{monthly_class}">{monthly_str}</span></td>
-                    <td class="change-col"><span class="{yearly_class}">{yearly_str}</span></td>
+                    <td class="change-col"><span class="{weekly_class}">{weekly_str}</span></td>
                     <td style="text-align:right"><span class="score {score_class}">{f['total_score']:.3f}</span></td>
                 </tr>"""
         rank_rows.append(row)
@@ -235,6 +220,12 @@ def generate_html(factors, trade_date, next_date):
             font-size: 13px;
             color: #787b86;
         }}
+        .header-time {{
+            font-size: 13px;
+            color: #2962ff;
+            font-weight: 500;
+            margin-top: 4px;
+        }}
 
         /* 区块标题 */
         .section-title {{
@@ -246,9 +237,9 @@ def generate_html(factors, trade_date, next_date):
             letter-spacing: 0.5px;
         }}
 
-        /* 涨跌幅颜色 */
-        .change-up {{ color: #00c853; }}
-        .change-down {{ color: #ff5252; }}
+        /* 涨跌幅颜色 - 红涨绿跌（A股习惯）*/
+        .change-up {{ color: #ff5252; }}
+        .change-down {{ color: #00c853; }}
         .change-col {{ text-align: right; font-size: 13px; }}
 
         /* 排名表格 */
@@ -418,6 +409,7 @@ def generate_html(factors, trade_date, next_date):
         <div class="header">
             <h1>ETF轮动策略</h1>
             <div class="header-meta">评估日期: {trade_date} | 下次: {next_date}</div>
+            <div class="header-time">数据更新: {update_time}</div>
         </div>
 
         <!-- 本周评分排名 -->
@@ -427,9 +419,7 @@ def generate_html(factors, trade_date, next_date):
                 <tr>
                     <th style="width:50px">排名</th>
                     <th>ETF</th>
-                    <th style="width:70px;text-align:right">日涨跌</th>
-                    <th style="width:70px;text-align:right">月涨跌</th>
-                    <th style="width:70px;text-align:right">年涨跌</th>
+                    <th style="width:90px;text-align:right">周涨跌</th>
                     <th style="width:90px;text-align:right">得分</th>
                 </tr>
             </thead>
@@ -534,14 +524,19 @@ def git_push():
 
 
 def main():
+    # 记录开始时间
+    start_time = datetime.now()
+    update_time = start_time.strftime('%Y-%m-%d %H:%M:%S')
+
     print("=" * 60)
     print("ETF轮动策略页面自动更新")
     print("=" * 60)
+    print(f"开始时间: {update_time}")
 
     # 计算日期
     today = datetime.now()
     end_date = today.strftime('%Y-%m-%d')
-    start_date = (today - timedelta(days=365)).strftime('%Y-%m-%d')  # 取一年数据
+    start_date = (today - timedelta(days=365)).strftime('%Y-%m-%d')
     next_friday = today + timedelta(days=(4 - today.weekday() + 7) % 7)
     if next_friday <= today:
         next_friday += timedelta(days=7)
@@ -558,12 +553,12 @@ def main():
         df = get_etf_data_tushare(symbol, start_date, end_date)
         if df is not None:
             etf_data[symbol] = df
-            daily, monthly, yearly = calc_changes(df)
-            print(f"    ✓ {len(df)}条记录 | 日:{daily:+.2f}% 月:{monthly:+.2f}% 年:{yearly:+.2f}%")
+            weekly = calc_weekly_change(df)
+            print(f"    ✓ {len(df)}条记录 | 周涨跌:{weekly:+.2f}%")
 
     if len(etf_data) < 4:
         print(f"\n❌ 数据不足 ({len(etf_data)}/4)，无法更新")
-        return
+        return False
 
     # 计算因子
     print("\n正在计算三因子得分...")
@@ -574,11 +569,12 @@ def main():
     print("\n本周排名:")
     sorted_etfs = sorted(factors.items(), key=lambda x: x[1]['total_score'], reverse=True)
     for i, (symbol, f) in enumerate(sorted_etfs, 1):
-        print(f"  {i}. {f['name']} - 得分: {f['total_score']:.3f}")
+        weekly_str = f"{f['weekly']:+.2f}%"
+        print(f"  {i}. {f['name']} | 周{weekly_str} | 得分: {f['total_score']:.3f}")
 
     # 生成HTML
     print("\n正在生成HTML页面...")
-    html = generate_html(factors, end_date, next_date)
+    html = generate_html(factors, end_date, next_date, update_time)
 
     # 保存文件
     html_path = os.path.join(GIT_REPO_PATH, 'index.html')
@@ -589,11 +585,15 @@ def main():
     # Git推送
     print("\n正在推送到GitHub...")
     if git_push():
-        print("\n🎉 更新完成！")
+        elapsed = (datetime.now() - start_time).total_seconds()
+        print(f"\n🎉 更新完成！耗时 {elapsed:.1f} 秒")
         print(f"访问地址: https://smiling-jedi.github.io/etf-dashboard-/")
+        return True
     else:
-        print("\n⚠️ 页面已生成本地，但推送失败，请手动执行 git push")
+        print("\n⚠️ 页面已生成本地，但推送失败")
+        return False
 
 
 if __name__ == '__main__':
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

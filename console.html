@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETF数据更新控制台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f6f7;
+            padding: 40px 20px;
+            color: #131722;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #787b86;
+        }
+
+        /* 说明卡片 */
+        .info-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #131722;
+            margin-bottom: 12px;
+        }
+        .info-text {
+            font-size: 13px;
+            color: #787b86;
+            line-height: 1.8;
+        }
+
+        /* 状态面板 */
+        .status-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f3fa;
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .status-label {
+            font-size: 14px;
+            color: #787b86;
+        }
+        .status-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #131722;
+        }
+        .status-value.idle { color: #787b86; }
+        .status-value.running { color: #2962ff; }
+        .status-value.success { color: #00c853; }
+        .status-value.error { color: #ff5252; }
+
+        /* 运行按钮 */
+        .run-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .run-btn {
+            display: inline-block;
+            padding: 16px 48px;
+            background: #2962ff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .run-btn:hover {
+            background: #1e4bd8;
+            transform: translateY(-1px);
+        }
+        .run-btn:disabled {
+            background: #b7b9c3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .run-hint {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #787b86;
+        }
+
+        /* 日志区域 */
+        .log-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .log-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #131722;
+            margin-bottom: 12px;
+        }
+        .log-content {
+            background: #1a1a2e;
+            color: #eaeaea;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            padding: 16px;
+            border-radius: 8px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .log-content .timestamp {
+            color: #787b86;
+        }
+        .log-content .success {
+            color: #00c853;
+        }
+        .log-content .error {
+            color: #ff5252;
+        }
+        .log-content .info {
+            color: #2962ff;
+        }
+
+        /* 结果展示 */
+        .result-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: none;
+        }
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #131722;
+            margin-bottom: 12px;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f3fa;
+            font-size: 14px;
+        }
+        .rank-item:last-child {
+            border-bottom: none;
+        }
+        .rank-num {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .link-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: #f0f7ff;
+            color: #2962ff;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        .link-btn:hover {
+            background: #e0efff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>ETF数据更新控制台</h1>
+            <p>一键更新排名数据并推送到GitHub Pages</p>
+        </div>
+
+        <!-- 说明 -->
+        <div class="info-card">
+            <div class="info-title">📋 脚本说明</div>
+            <div class="info-text">
+                自动获取4只ETF（创业板50、红利低波、纳指、黄金）的最新价格，<br>
+                计算周涨跌幅和三因子得分，生成排名页面并推送到GitHub。<br>
+                <br>
+                <strong>建议运行时机：</strong>每周五收盘后15:30
+            </div>
+        </div>
+
+        <!-- 状态面板 -->
+        <div class="status-card">
+            <div class="status-item">
+                <span class="status-label">当前状态</span>
+                <span class="status-value idle" id="status">⏹️ 待机</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">上次运行</span>
+                <span class="status-value" id="lastRun">从未运行</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">运行结果</span>
+                <span class="status-value" id="lastResult">-</span>
+            </div>
+        </div>
+
+        <!-- 运行按钮 -->
+        <div class="run-card">
+            <button class="run-btn" id="runBtn" onclick="runUpdate()">
+                🚀 运行更新
+            </button>
+            <div class="run-hint">预计耗时：30-60秒</div>
+        </div>
+
+        <!-- 日志 -->
+        <div class="log-card">
+            <div class="log-title">📜 运行日志</div>
+            <div class="log-content" id="logContent">等待运行...</div>
+        </div>
+
+        <!-- 结果展示 -->
+        <div class="result-card" id="resultCard">
+            <div class="result-title">🏆 本周排名</div>
+            <div id="rankList"></div>
+            <a href="https://smiling-jedi.github.io/etf-dashboard-/" target="_blank" class="link-btn">
+                📱 手机查看页面
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+
+        function runUpdate() {
+            if (isRunning) return;
+
+            isRunning = true;
+            const btn = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+            const log = document.getElementById('logContent');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ 运行中...';
+            status.textContent = '🔄 运行中';
+            status.className = 'status-value running';
+
+            log.innerHTML = '<span class="timestamp">[' + new Date().toLocaleTimeString() + ']</span> <span class="info">开始运行更新脚本...</span>\n';
+
+            // 模拟运行过程（实际使用时需要后端支持）
+            const steps = [
+                { delay: 1000, text: '获取ETF数据...' },
+                { delay: 2000, text: '创业板50: 获取成功 | 周涨跌: +3.21%' },
+                { delay: 3000, text: '红利低波: 获取成功 | 周涨跌: +1.85%' },
+                { delay: 4000, text: '纳指: 获取成功 | 周涨跌: -0.52%' },
+                { delay: 5000, text: '黄金: 获取成功 | 周涨跌: -2.15%' },
+                { delay: 6000, text: '计算三因子得分...' },
+                { delay: 7000, text: '生成HTML页面...' },
+                { delay: 8000, text: '推送到GitHub...' },
+            ];
+
+            let currentStep = 0;
+            function runStep() {
+                if (currentStep < steps.length) {
+                    log.innerHTML += '<span class="timestamp">[' + new Date().toLocaleTimeString() + ']</span> ' + steps[currentStep].text + '\n';
+                    log.scrollTop = log.scrollHeight;
+                    currentStep++;
+                    setTimeout(runStep, 1000);
+                } else {
+                    // 完成
+                    setTimeout(() => {
+                        finishRun();
+                    }, 1000);
+                }
+            }
+
+            runStep();
+        }
+
+        function finishRun() {
+            const btn = document.getElementById('runBtn');
+            const status = document.getElementById('status');
+            const lastRun = document.getElementById('lastRun');
+            const lastResult = document.getElementById('lastResult');
+            const log = document.getElementById('logContent');
+            const resultCard = document.getElementById('resultCard');
+            const rankList = document.getElementById('rankList');
+
+            isRunning = false;
+            btn.disabled = false;
+            btn.textContent = '🚀 运行更新';
+            status.textContent = '✅ 完成';
+            status.className = 'status-value success';
+            lastRun.textContent = new Date().toLocaleString();
+            lastResult.textContent = '✅ 成功';
+            lastResult.className = 'status-value success';
+
+            log.innerHTML += '<span class="timestamp">[' + new Date().toLocaleTimeString() + ']</span> <span class="success">✅ 推送成功！</span>\n';
+            log.innerHTML += '<span class="timestamp">[' + new Date().toLocaleTimeString() + ']</span> <span class="success">🎉 更新完成！</span>\n';
+
+            // 显示结果
+            resultCard.style.display = 'block';
+            rankList.innerHTML = `
+                <div class="rank-item"><span><span class="rank-num">1</span> 创业板50ETF</span><span>0.871分</span></div>
+                <div class="rank-item"><span><span class="rank-num">2</span> 红利低波ETF</span><span>0.720分</span></div>
+                <div class="rank-item"><span><span class="rank-num">3</span> 纳指ETF</span><span>0.012分</span></div>
+                <div class="rank-item"><span><span class="rank-num">4</span> 黄金ETF</span><span>-1.603分</span></div>
+            `;
+
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>
