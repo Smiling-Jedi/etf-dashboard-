@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETF轮动策略监控</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #fff;
+            padding: 24px;
+            color: #131722;
+            line-height: 1.5;
+        }
+        .container { max-width: 720px; margin: 0 auto; }
+
+        /* 头部 */
+        .header {
+            border-bottom: 1px solid #e0e3eb;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #131722;
+            margin-bottom: 4px;
+        }
+        .header-meta {
+            font-size: 13px;
+            color: #787b86;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #131722;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 排名表格 */
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .rank-table th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e3eb;
+            font-size: 12px;
+            font-weight: 400;
+            color: #787b86;
+        }
+        .rank-table td {
+            padding: 14px 8px;
+            border-bottom: 1px solid #f0f3fa;
+            font-size: 14px;
+        }
+        .rank-table tr:hover { background: #f8f9fd; }
+        .rank-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .rank-1 { background: #2962ff; }
+        .rank-2 { background: #00c853; }
+        .rank-3 { background: #787b86; }
+        .rank-4 { background: #b7b9c3; }
+        .etf-name { font-weight: 500; }
+        .etf-code {
+            font-size: 12px;
+            color: #787b86;
+            margin-left: 4px;
+        }
+        .score {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .score-positive { color: #00c853; }
+        .score-negative { color: #ff5252; }
+
+        /* 信号卡片 */
+        .signal-card {
+            border: 1px solid #e0e3eb;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .signal-label {
+            font-size: 12px;
+            color: #787b86;
+            margin-bottom: 8px;
+        }
+        .signal-action {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .signal-buy { color: #00c853; }
+        .signal-hold { color: #ff9800; }
+        .signal-sell { color: #ff5252; }
+        .signal-detail {
+            font-size: 13px;
+            color: #787b86;
+            line-height: 1.6;
+        }
+
+        /* 持仓卡片 */
+        .holding-card {
+            border: 1px solid #e0e3eb;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .holding-label {
+            font-size: 12px;
+            color: #787b86;
+            margin-bottom: 4px;
+        }
+        .holding-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #131722;
+        }
+        .holding-code {
+            font-size: 13px;
+            color: #787b86;
+        }
+        .holding-pnl {
+            text-align: right;
+        }
+        .pnl-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .pnl-up { color: #00c853; }
+        .pnl-down { color: #ff5252; }
+        .pnl-flat { color: #787b86; }
+
+        /* 统计网格 */
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f3fa;
+        }
+        .stat-item:last-child { text-align: right; }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #131722;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #787b86;
+            margin-top: 2px;
+        }
+
+        /* 交易记录 */
+        .trade-list {
+            border: 1px solid #e0e3eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .trade-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f3fa;
+            font-size: 14px;
+        }
+        .trade-item:last-child { border-bottom: none; }
+        .trade-date { color: #787b86; font-size: 13px; }
+        .trade-etfs { flex: 1; padding: 0 16px; }
+        .trade-out { color: #ff5252; }
+        .trade-in { color: #00c853; }
+        .trade-arrow { color: #787b86; margin: 0 8px; }
+        .trade-price { text-align: right; color: #787b86; font-size: 13px; }
+
+        /* 底部信息 */
+        .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e3eb;
+            text-align: center;
+            font-size: 12px;
+            color: #787b86;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>ETF轮动策略</h1>
+            <div class="header-meta">评估日期: 2026-03-27 | 下次: 2026-04-03</div>
+        </div>
+
+        <!-- 本周评分排名 -->
+        <div class="section-title">本周评分排名</div>
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th style="width:50px">排名</th>
+                    <th>ETF</th>
+                    <th style="width:100px;text-align:right">得分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="rank-num rank-1">1</span></td>
+                    <td><span class="etf-name">创业板50ETF</span><span class="etf-code">159949</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.871</span></td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num rank-2">2</span></td>
+                    <td><span class="etf-name">红利低波ETF</span><span class="etf-code">512890</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.720</span></td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num rank-3">3</span></td>
+                    <td><span class="etf-name">纳指ETF</span><span class="etf-code">513100</span></td>
+                    <td style="text-align:right"><span class="score score-positive">0.012</span></td>
+                </tr>
+                <tr>
+                    <td><span class="rank-num rank-4">4</span></td>
+                    <td><span class="etf-name">黄金ETF</span><span class="etf-code">518880</span></td>
+                    <td style="text-align:right"><span class="score score-negative">-1.603</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 交易建议 -->
+        <div class="section-title">交易建议</div>
+        <div class="signal-card">
+            <div class="signal-label">SIGNAL</div>
+            <div class="signal-action signal-buy">BUY</div>
+            <div class="signal-detail">
+                当前空仓 → 买入创业板50ETF (159949)<br>
+                目标仓位: 100%
+            </div>
+        </div>
+
+        <!-- 当前持仓 -->
+        <div class="section-title">当前持仓</div>
+        <div class="holding-card">
+            <div>
+                <div class="holding-label">持仓标的</div>
+                <div class="holding-name">空仓</div>
+                <div class="holding-code">等待建仓</div>
+            </div>
+            <div class="holding-pnl">
+                <div class="pnl-value pnl-flat">0.00%</div>
+                <div class="holding-label">持仓收益</div>
+            </div>
+        </div>
+
+        <!-- 策略表现 -->
+        <div class="section-title">策略表现 (2019-2026)</div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value">17.2x</div>
+                <div class="stat-label">7年净值</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">48.6%</div>
+                <div class="stat-label">年化收益</div>
+            </div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value">-25.4%</div>
+                <div class="stat-label">最大回撤</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">99</div>
+                <div class="stat-label">交易次数</div>
+            </div>
+        </div>
+
+        <!-- 交易记录 -->
+        <div class="section-title">交易记录</div>
+        <div class="trade-list">
+            <div class="trade-item">
+                <div style="text-align:center;width:100%;color:#787b86;font-size:13px;">暂无交易记录</div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            ETF轮动策略 · 三因子动量模型 · 周度评估
+        </div>
+    </div>
+</body>
+</html>
