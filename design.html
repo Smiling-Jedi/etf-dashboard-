@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资中枢 · 设计稿</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f6f7;
+            color: #131722;
+            line-height: 1.6;
+        }
+
+        /* 页面容器 */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部 */
+        .header {
+            background: #fff;
+            border-radius: 4px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e3eb;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header-meta {
+            font-size: 13px;
+            color: #787b86;
+            margin-bottom: 12px;
+        }
+
+        .nav a {
+            display: inline-block;
+            padding: 6px 14px;
+            margin-right: 8px;
+            background: #f0f7ff;
+            color: #2962ff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 主布局 */
+        .main-layout {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-card {
+            background: #fff;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e0e3eb;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #787b86;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .archive-link {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #495057;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+
+        .archive-link:hover { background: #f5f6f7; }
+        .archive-link.active {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #2962ff;
+        }
+
+        /* 导航链接 */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #495057;
+            text-decoration: none;
+            margin-bottom: 6px;
+        }
+
+        .nav-link::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background: #dee2e6;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover { background: #f5f6f7; }
+
+        .nav-link.highlight-red::before { background: #ff5252; }
+        .nav-link.highlight-blue::before { background: #2962ff; }
+        .nav-link.highlight-green::before { background: #00c853; }
+        .nav-link.highlight-orange::before { background: #ff9800; }
+
+        /* 内容区 */
+        .content {
+            flex: 1;
+            max-width: 900px;
+        }
+
+        /* 卡片基础 */
+        .card {
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #e0e3eb;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f3fa;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #787b86;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* 高亮卡片 - 重点关注 */
+        .card-alert {
+            border-left: 4px solid #ff5252;
+        }
+
+        .card-alert .card-title {
+            color: #ff5252;
+        }
+
+        /* 高亮卡片 - 行动建议 */
+        .card-action {
+            border-left: 4px solid #2962ff;
+        }
+
+        .card-action .card-title {
+            color: #2962ff;
+        }
+
+        /* 五维雷达 */
+        .radar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .radar-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fd;
+            border-radius: 4px;
+        }
+
+        .radar-status {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-ok { background: #e6f9ed; color: #00c853; }
+        .status-warn { background: #fff3e0; color: #ff9800; }
+        .status-danger { background: #ffeaea; color: #ff5252; }
+
+        .radar-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .radar-desc {
+            font-size: 12px;
+            color: #787b86;
+        }
+
+        /* 表格样式 - ETF轮动风格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e3eb;
+            font-size: 12px;
+            font-weight: 400;
+            color: #787b86;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f3fa;
+        }
+
+        tr:hover { background: #f8f9fd; }
+
+        /* 优先级标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .tag-p0 { background: #ffeaea; color: #ff5252; }
+        .tag-p1 { background: #fff3e0; color: #ff9800; }
+        .tag-p2 { background: #e8f5e9; color: #00c853; }
+
+        /* 列表样式 */
+        .focus-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .focus-list li {
+            padding: 10px 0;
+            border-bottom: 1px dashed #f0f3fa;
+            font-size: 14px;
+        }
+
+        .focus-list li:last-child {
+            border-bottom: none;
+        }
+
+        .focus-num {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #ff5252;
+            color: #fff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .main-layout { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .sidebar-card { margin-bottom: 12px; }
+            .radar-grid { grid-template-columns: repeat(3, 1fr); }
+            th, td { padding: 10px 6px; font-size: 13px; }
+        }
+
+        @media (max-width: 480px) {
+            .radar-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .radar-item { padding: 12px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>投资中枢 · 体检报告</h1>
+            <div class="header-meta">报告日期: 2026-03-26 | 数据更新时间: 2026-03-27 16:04:24</div>
+            <div class="nav">
+                <a href="#">← 返回ETF轮动</a>
+                <a href="#">历史报告</a>
+            </div>
+        </div>
+
+        <!-- 主体 -->
+        <div class="main-layout">
+            <!-- 左侧边栏 -->
+            <div class="sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-title">历史报告</div>
+                    <a href="#" class="archive-link active">2026年03月26日</a>
+                    <a href="#" class="archive-link">2026年03月24日</a>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-title">本报告导航</div>
+                    <a href="#" class="nav-link highlight-red">本期重点关注</a>
+                    <a href="#" class="nav-link highlight-blue">本期行动建议</a>
+                    <a href="#" class="nav-link">五维雷达总览</a>
+                    <a href="#" class="nav-link">总资产计算</a>
+                    <a href="#" class="nav-link">维度一：集中度风险</a>
+                    <a href="#" class="nav-link">维度二：波段仓状态</a>
+                    <a href="#" class="nav-link">维度三：投资逻辑验证</a>
+                    <a href="#" class="nav-link">维度四：归因分析</a>
+                    <a href="#" class="nav-link">维度五：组合健康度</a>
+                    <a href="#" class="nav-link">数据说明</a>
+                </div>
+            </div>
+
+            <!-- 内容区 -->
+            <div class="content">
+                <!-- 重点关注 -->
+                <div class="card card-alert">
+                    <div class="card-header">
+                        <div class="card-title">本期重点关注</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="focus-list">
+                            <li><span class="focus-num">1</span>3/27比亚迪年报 — 直接影响A股最大仓位操作方向</li>
+                            <li><span class="focus-num">2</span>阿里波段止损位HKD 115-118 — 本周最高优先级风控动作</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 行动建议 -->
+                <div class="card card-action">
+                    <div class="card-header">
+                        <div class="card-title">本期行动建议</div>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:80px">优先级</th>
+                                    <th>行动项</th>
+                                    <th style="width:120px">截止时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="tag tag-p0">P0</span></td>
+                                    <td>阿里波段止损位设置（现价HKD 123，距止损位仅4-6%）</td>
+                                    <td>本周内</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="tag tag-p0">P0</span></td>
+                                    <td>比亚迪年报判断（净利>400亿加仓，<350亿减仓）</td>
+                                    <td>3/27</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="tag tag-p1">P1</span></td>
+                                    <td>中信证券处置（逻辑已失效，释放37万CNY仓位）</td>
+                                    <td>择机</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="tag tag-p1">P1</span></td>
+                                    <td>医药ETF减仓50%（释放约44万CNY）</td>
+                                    <td>择机</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 五维雷达总览 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">五维雷达总览</div>
+                    </div>
+                    <div class="radar-grid">
+                        <div class="radar-item">
+                            <div class="radar-status status-ok">ok</div>
+                            <div class="radar-name">集中度</div>
+                            <div class="radar-desc">HHI健康</div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-status status-warn">!</div>
+                            <div class="radar-name">波段仓</div>
+                            <div class="radar-desc">2只被套</div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-status status-danger">!</div>
+                            <div class="radar-name">逻辑验证</div>
+                            <div class="radar-desc">3项需关注</div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-status status-ok">ok</div>
+                            <div class="radar-name">归因分析</div>
+                            <div class="radar-desc">首次体检</div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-status status-warn">!</div>
+                            <div class="radar-name">组合健康</div>
+                            <div class="radar-desc">预期17%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 维度一 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">维度一：集中度风险</div>
+                    </div>
+                    <div class="card-body">
+                        <table style="margin-bottom:16px;">
+                            <thead>
+                                <tr>
+                                    <th>指标</th>
+                                    <th>数值</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>HHI</td>
+                                    <td>~0.086</td>
+                                    <td style="color:#00c853;">健康</td>
+                                </tr>
+                                <tr>
+                                    <td>有效持仓数</td>
+                                    <td>~12只</td>
+                                    <td style="color:#00c853;">合理</td>
+                                </tr>
+                                <tr>
+                                    <td>最大单股（腾讯）</td>
+                                    <td>20.9%</td>
+                                    <td style="color:#00c853;">< 25%警戒线</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="font-size:13px;color:#787b86;margin-bottom:8px;">主要持仓占比</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>标的</th>
+                                    <th style="text-align:right">市值</th>
+                                    <th style="text-align:right">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>腾讯控股</td>
+                                    <td style="text-align:right">324万</td>
+                                    <td style="text-align:right">20.9%</td>
+                                </tr>
+                                <tr>
+                                    <td>比亚迪</td>
+                                    <td style="text-align:right">160万</td>
+                                    <td style="text-align:right">10.3%</td>
+                                </tr>
+                                <tr>
+                                    <td>阿里巴巴</td>
+                                    <td style="text-align:right">149万</td>
+                                    <td style="text-align:right">9.6%</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="text-align:center;color:#787b86;font-size:12px;">... 共12只持仓</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 维度二 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">维度二：波段仓状态</div>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>波段仓</th>
+                                    <th style="text-align:right">成本</th>
+                                    <th style="text-align:right">现价</th>
+                                    <th style="text-align:right">盈亏</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>腾讯 1,000股</td>
+                                    <td style="text-align:right">HKD 605.25</td>
+                                    <td style="text-align:right">HKD 495.6</td>
+                                    <td style="text-align:right;color:#ff5252;">-18.1%</td>
+                                    <td style="color:#ff5252;">深度被套</td>
+                                </tr>
+                                <tr>
+                                    <td>阿里 7,000股</td>
+                                    <td style="text-align:right">HKD 150.1</td>
+                                    <td style="text-align:right">HKD 123.0</td>
+                                    <td style="text-align:right;color:#ff5252;">-18.1%</td>
+                                    <td style="color:#ff5252;">深度被套</td>
+                                </tr>
+                                <tr>
+                                    <td>MSFT 50股</td>
+                                    <td style="text-align:right">USD 400.99</td>
+                                    <td style="text-align:right">USD 371.04</td>
+                                    <td style="text-align:right;color:#ff9800;">-7.5%</td>
+                                    <td style="color:#ff9800;">小幅被套</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top:16px;padding:12px;background:#f8f9fd;border-radius:4px;font-size:13px;">
+                            <strong>ATR止损参考位</strong><br>
+                            阿里：HKD 115-118（距止损仅4-6%，高危）<br>
+                            腾讯：HKD 470-475<br>
+                            MSFT：USD 350-355
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 维度三、四、五 简化展示 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">维度三：投资逻辑验证</div>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>标的</th>
+                                    <th>标签</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>腾讯（底仓）</td><td>质量型</td><td style="color:#00c853;">逻辑成立</td></tr>
+                                <tr><td>阿里（底仓）</td><td>价值型</td><td style="color:#00c853;">逻辑成立</td></tr>
+                                <tr><td>比亚迪</td><td>动量型→价值型</td><td style="color:#ff9800;">待年报验证</td></tr>
+                                <tr><td>中信证券</td><td>失效</td><td style="color:#ff5252;">建议清仓</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 总资产 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">总资产计算</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;">
+                            <div style="text-align:center;padding:16px;background:#f8f9fd;border-radius:4px;">
+                                <div style="font-size:24px;font-weight:700;">1,546万</div>
+                                <div style="font-size:12px;color:#787b86;margin-top:4px;">总资产 CNY</div>
+                            </div>
+                            <div style="text-align:center;padding:16px;background:#f8f9fd;border-radius:4px;">
+                                <div style="font-size:20px;font-weight:600;">645万</div>
+                                <div style="font-size:12px;color:#787b86;margin-top:4px;">港股 41.7%</div>
+                            </div>
+                            <div style="text-align:center;padding:16px;background:#f8f9fd;border-radius:4px;">
+                                <div style="font-size:20px;font-weight:600;">229万</div>
+                                <div style="font-size:12px;color:#787b86;margin-top:4px;">美股 14.8%</div>
+                            </div>
+                            <div style="text-align:center;padding:16px;background:#f8f9fd;border-radius:4px;">
+                                <div style="font-size:20px;font-weight:600;">511万</div>
+                                <div style="font-size:12px;color:#787b86;margin-top:4px;">A股 33.0%</div>
+                            </div>
+                        </div>
+
+                        <details>
+                            <summary style="cursor:pointer;font-size:13px;color:#2962ff;">查看详细价格表</summary>
+                            <table style="margin-top:12px;">
+                                <thead>
+                                    <tr>
+                                        <th>代码</th>
+                                        <th>名称</th>
+                                        <th style="text-align:right">价格</th>
+                                        <th>货币</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>HK.00700</td><td>腾讯控股</td><td style="text-align:right">495.6</td><td>HKD</td></tr>
+                                    <tr><td>HK.09988</td><td>阿里巴巴</td><td style="text-align:right">123.0</td><td>HKD</td></tr>
+                                    <tr><td>US.TSLA</td><td>特斯拉</td><td style="text-align:right">385.95</td><td>USD</td></tr>
+                                </tbody>
+                            </table>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- 数据说明 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">数据说明</div>
+                    </div>
+                    <div class="card-body" style="font-size:13px;color:#787b86;">
+                        <p>• 港/美股价格：富途OpenD实时快照</p>
+                        <p>• A股价格：近期收盘价，待人工核对</p>
+                        <p>• 汇率：HKD/CNY=0.933，USD/CNY=7.27</p>
+                        <p>• 东方财富回款约CNY 40万已计入A股现金，待富途结算确认</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

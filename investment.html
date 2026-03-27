@@ -3,284 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投资中枢 · 体检报告</title>
+    <title>投资中枢 · 2026年03月26日体检报告</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: #f5f6f7;
+            background: #eceaf8;
             color: #131722;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 15px;
         }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
-        .header {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Band - 紫色顶部导航 */
+        .header-band {
+            background: #38346a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            width: 100%;
             margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        .header h1 {
-            font-size: 20px;
+
+        .header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        .header-nav {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .header-meta {
-            font-size: 13px;
-            color: #787b86;
-        }
-        .nav {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e0e3eb;
-        }
-        .nav a {
-            display: inline-block;
-            padding: 8px 16px;
-            margin-right: 8px;
-            background: #f0f7ff;
-            color: #2962ff;
+            color: #fff;
             text-decoration: none;
-            border-radius: 6px;
-            font-size: 13px;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-brand span {
+            color: #a5b4fc;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-link-top {
+            padding: 5px 14px;
+            border-radius: 20px;
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            font-size: 14px;
             font-weight: 500;
         }
-        .nav a:hover { background: #e0efff; }
 
+        .nav-link-top.active {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        .header-title-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 8px;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-icon {
+            font-size: 20px;
+        }
+
+        .title-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .title-date {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-left: 8px;
+        }
+
+        .title-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-outline {
+            padding: 5px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.75);
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        /* 主布局 */
         .main-layout {
             display: flex;
-            gap: 20px;
+            gap: 40px;
         }
+
+        /* 左侧边栏 */
         .sidebar {
             width: 200px;
             flex-shrink: 0;
         }
-        .content {
-            flex: 1;
-            background: #fff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
 
         .sidebar-card {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 8px;
+            border: 1px solid #dcdaf0;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
+
         .sidebar-title {
-            font-size: 12px;
+            font-size: 11px;
+            color: #666;
             font-weight: 600;
-            color: #787b86;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .archive-link {
+
+        .sidebar a {
             display: block;
-            padding: 8px 10px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 6px 0;
+            font-size: 14px;
             color: #495057;
             text-decoration: none;
-            margin-bottom: 4px;
+            border-left: 3px solid transparent;
+            padding-left: 12px;
+            margin-left: -12px;
         }
-        .archive-link:hover { background: #f5f6f7; }
-        .archive-link.active { background: #e9ecef; font-weight: 600; color: #000; }
 
-        /* 移动端优化样式 */
-        .priority-section {
-            margin-bottom: 20px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        .sidebar a:hover {
+            color: #2962ff;
         }
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 20px;
-            font-size: 16px;
-            font-weight: 600;
+
+        .sidebar a.active {
+            border-left-color: #38346a;
+            color: #38346a;
+            font-weight: 500;
         }
-        .section-icon { font-size: 20px; }
-        .section-header h2 {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
+
+        .sidebar .highlight {
+            border-left-color: #868e96;
         }
-        .section-body {
-            padding: 20px;
+
+        /* 内容区 - 白色卡片 */
+        .content-wrapper {
+            flex: 1;
             background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dcdaf0;
+            padding: 32px 40px;
+            max-width: 900px;
         }
 
-        .alert-section .section-header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-            color: #fff;
-        }
-        .alert-section .section-body {
-            background: #fff5f5;
-            border: 2px solid #ffc9c9;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-        }
-
-        .action-section .section-header {
-            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
-            color: #fff;
-        }
-        .action-section .section-body {
-            background: #f0f7ff;
-            border: 2px solid #d0ebff;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-        }
-
-        .radar-overview {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .radar-overview .section-header {
-            padding: 0 0 16px 0;
+        /* 报告头部 */
+        .report-header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
             border-bottom: 1px solid #e0e3eb;
         }
-        .radar-overview .section-header h2 { color: #333; }
-        .radar-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            padding-top: 16px;
-        }
-        .radar-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .radar-icon { font-size: 18px; }
-        .radar-name { font-weight: 500; color: #333; }
-        .radar-desc {
-            margin-left: auto;
-            font-size: 12px;
-            color: #787b86;
+
+        .report-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border: none;
+            padding: 0;
         }
 
-        .details-section { margin-bottom: 20px; }
-        .dim-details {
-            background: #fff;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            overflow: hidden;
+        .report-meta {
+            font-size: 14px;
+            color: #787b86;
+            line-height: 1.8;
         }
-        .dim-details summary {
-            padding: 16px 20px;
+
+        /* 章节标题 - 左侧竖线区隔 */
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            padding-left: 12px;
+            border-left: 4px solid #131722;
+            line-height: 1.4;
+        }
+
+        h3 {
             font-size: 15px;
             font-weight: 600;
+            margin: 24px 0 12px 0;
             color: #333;
-            cursor: pointer;
-            list-style: none;
-        }
-        .dim-details summary::before {
-            content: "▶";
-            font-size: 12px;
-            color: #787b86;
-            margin-right: 8px;
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .dim-details[open] summary::before {
-            transform: rotate(90deg);
-        }
-        .dim-content {
-            padding: 0 20px 20px;
-            border-top: 1px solid #f0f3fa;
         }
 
-        .report-content h1 { font-size: 22px; margin-bottom: 16px; }
-        .report-content h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e0e3eb; }
-        .report-content h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; }
-        .report-content p { margin-bottom: 12px; }
-        .report-content table {
+        p {
+            margin-bottom: 12px;
+        }
+
+        ul, ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* 表格 - 极简 */
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin: 16px 0;
             font-size: 14px;
+            margin: 16px 0;
         }
-        .report-content th {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            border: 1px solid #e0e3eb;
-            text-align: left;
-            font-weight: 600;
-        }
-        .report-content td {
-            padding: 10px 12px;
-            border: 1px solid #e0e3eb;
-        }
-        .report-content tr:nth-child(even) { background: #fafafa; }
 
-        @media (max-width: 768px) {
-            .main-layout { flex-direction: column; }
-            .sidebar { width: 100%; }
-            .radar-grid { grid-template-columns: repeat(2, 1fr); }
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e3eb;
+            font-weight: 500;
+            color: #787b86;
+            font-size: 13px;
         }
-        @media (max-width: 480px) {
-            .radar-grid { grid-template-columns: 1fr; }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f0f3fa;
+        }
+
+        tr:last-child td {
+            border-bottom: 1px solid #e0e3eb;
+        }
+
+        /* 折叠组件 */
+        details {
+            margin: 16px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            color: #2962ff;
+            font-size: 14px;
+            user-select: none;
+            list-style: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: "▶";
+            display: inline-block;
+            margin-right: 6px;
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        details[open] summary {
+            margin-bottom: 12px;
+        }
+
+        /* 优先级标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #f5f6f7;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+            color: #495057;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 12px;
+            }
+
+            .header-inner {
+                padding: 0 16px;
+            }
+
+            .main-layout {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: -1;
+            }
+
+            .sidebar-card {
+                margin-bottom: 12px;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            .report-header h2 {
+                font-size: 22px;
+            }
+
+            h2 {
+                font-size: 17px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            .header-title-area {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .title-actions {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 投资中枢 · 体检报告</h1>
-            <div class="header-meta">最新报告: 2026年03月26日 | 数据更新时间: 2026-03-27 17:01:20</div>
-            <div class="nav">
-                <a href="index.html">← 返回ETF轮动</a>
-            </div>
-        </div>
-
-        <div class="main-layout">
-            <div class="sidebar">
-                <div class="sidebar-card">
-                    <div class="sidebar-title">历史报告</div>
-                    <a href="investment_20260326.html" class="archive-link">2026年03月26日</a>
-<a href="investment_20260324.html" class="archive-link">2026年03月24日</a>
-
+    <!-- Header Band -->
+    <div class="header-band">
+        <div class="header-inner">
+            <div class="header-nav">
+                <a href="/" class="nav-brand">
+                    <span>⚔️</span>
+                    <span>光剑 Lightsaber</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/positions/" class="nav-link-top">持仓</a>
+                    <a href="/investment/" class="nav-link-top active">投资中枢</a>
                 </div>
             </div>
-            <div class="content report-content">
-                
-<!-- 移动端优化：核心信息置顶 -->
-<div class="mobile-optimized">
-    <!-- 本期重点关注 -->
-    <div class="priority-section alert-section">
-        <div class="section-header">
-            <span class="section-icon">🔥</span>
-            <h2>本期重点关注</h2>
+            <div class="header-title-area">
+                <div class="title-left">
+                    <span class="title-icon">📊</span>
+                    <span class="title-text">体检报告</span>
+                    <span class="title-date">2026年03月26日</span>
+                </div>
+                <div class="title-actions">
+                    <a href="investment.html" class="btn-outline">最新报告</a>
+                    <a href="index.html" class="btn-outline">← ETF轮动</a>
+                </div>
+            </div>
         </div>
-        <div class="section-body"><ol>
-<li><strong>3/27比亚迪年报</strong> — 直接影响A股最大仓位操作方向</li>
-<li><strong>阿里波段止损位HKD 115-118</strong> — 本周最高优先级风控动作</li>
-</ol></div>
     </div>
 
-    <!-- 本期行动建议 -->
-    <div class="priority-section action-section">
-        <div class="section-header">
-            <span class="section-icon">⚡</span>
-            <h2>本期行动建议</h2>
-        </div>
-        <div class="section-body"><h3>P0 近期优先处理</h3>
+    <!-- 主体 -->
+    <div class="container">
+        <div class="main-layout">
+            
+<div class="sidebar">
+    <div class="sidebar-card">
+        <div class="sidebar-title">历史报告</div>
+        <a href="investment_20260326.html" class="nav-link active">2026年03月26日</a><a href="investment_20260324.html" class="nav-link ">2026年03月24日</a>
+    </div>
+    <div class="sidebar-card">
+        <div class="sidebar-title">本报告导航</div>
+        
+<a href="#assets" class="nav-link">总资产计算</a>
+<a href="#dim1" class="nav-link highlight">维度一：集中度风险</a>
+<a href="#dim2" class="nav-link highlight">维度二：波段仓状态</a>
+<a href="#dim3" class="nav-link highlight">维度三：投资逻辑验证</a>
+<a href="#dim4" class="nav-link highlight">维度四：归因分析</a>
+<a href="#dim5" class="nav-link highlight">维度五：组合健康度预判</a>
+<a href="#actions" class="nav-link">本期行动建议</a>
+<a href="#focus" class="nav-link">本期重点关注</a>
+<a href="#footer" class="nav-link">数据说明</a>
+
+    </div>
+</div>
+
+            <div class="content-wrapper">
+                <div class="report-header">
+                    <h2>光剑系统 · 五维雷达体检报告</h2>
+                    <div class="report-meta">
+                        日期: 2026-03-26<br>
+                        框架版本: 五维雷达 v1.0<br>
+                        数据来源: 港/美股 → 富途OpenD实时价格；A股 → 近期收盘价（人工校验基线）
+                    </div>
+                </div>
+
+                
+<h2 id="focus">本期重点关注</h2>
+<ol>
+<li><strong>3/27比亚迪年报</strong> — 直接影响A股最大仓位操作方向</li>
+<li><strong>阿里波段止损位HKD 115-118</strong> — 本周最高优先级风控动作</li>
+</ol>
+
+
+                <h2 id="actions">本期行动建议</h2>
+<h3>P0 近期优先处理</h3>
 <p><strong>1. 阿里波段止损位设置（本周内）</strong><br />
 现价HKD 123，距ATR止损位HK$115-118仅4-6%。建议在富途设好条件单止损，不要等到触发时再犹豫。</p>
 <p><strong>2. 比亚迪年报（明日3/27）</strong><br />
@@ -322,551 +475,300 @@
 <td>&gt; 25%</td>
 </tr>
 </tbody>
-</table></div>
-    </div>
+</table>
+<hr />
 
-    <!-- 五维雷达总览 -->
-    <div class="radar-overview">
-        <div class="section-header">
-            <span class="section-icon">📊</span>
-            <h2>五维雷达总览</h2>
-        </div>
-        <div class="radar-grid"><div class="radar-item"><span class="radar-icon">🟢</span><span class="radar-name">集中度风险</span><span class="radar-desc">HHI健康</span></div><div class="radar-item"><span class="radar-icon">🟡</span><span class="radar-name">波段仓状态</span><span class="radar-desc">3只被套</span></div><div class="radar-item"><span class="radar-icon">🔴</span><span class="radar-name">逻辑验证</span><span class="radar-desc">5项需关注</span></div><div class="radar-item"><span class="radar-icon">🔴</span><span class="radar-name">组合健康度</span><span class="radar-desc">预期17%</span></div></div>
-        <div class="radar-nav-hint">👇 点击下方展开各维度详情</div>
-    </div>
-</div>
+                
+<h2 id="assets">总资产计算</h2>
 
-<!-- 详细内容（折叠） -->
-<div class="details-section">
-    
-<details class="dim-details" id="concentration">
-<summary>维度一：集中度风险</summary>
-<div class="dim-content"><h3>主要持仓占比（CNY 1,546万基准）</h3>
+<p><strong>| **≈ 1,546万 CNY** | 100% |</strong></p>
+
 <table>
 <thead>
 <tr>
-<th>标的</th>
-<th>市值CNY</th>
-<th>占比</th>
-<th>占比²</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>腾讯</td>
-<td>324万</td>
-<td>20.9%</td>
-<td>0.0437</td>
-</tr>
-<tr>
-<td>比亚迪</td>
-<td>160万</td>
-<td>10.3%</td>
-<td>0.0106</td>
-</tr>
-<tr>
-<td>阿里</td>
-<td>149万</td>
-<td>9.6%</td>
-<td>0.0092</td>
-</tr>
-<tr>
-<td>医药ETF</td>
-<td>88万</td>
-<td>5.7%</td>
-<td>0.0033</td>
-</tr>
-<tr>
-<td>机器人ETF</td>
-<td>66万</td>
-<td>4.3%</td>
-<td>0.0018</td>
-</tr>
-<tr>
-<td>TSLA</td>
-<td>56万</td>
-<td>3.6%</td>
-<td>0.0013</td>
-</tr>
-<tr>
-<td>宁德</td>
-<td>39万</td>
-<td>2.5%</td>
-<td>0.0006</td>
-</tr>
-<tr>
-<td>中信证券</td>
-<td>37万</td>
-<td>2.4%</td>
-<td>0.0006</td>
-</tr>
-<tr>
-<td>阳光电源</td>
-<td>33万</td>
-<td>2.1%</td>
-<td>0.0004</td>
-</tr>
-<tr>
-<td>MSFT</td>
-<td>40万</td>
-<td>2.6%</td>
-<td>0.0007</td>
-</tr>
-<tr>
-<td>META</td>
-<td>30万</td>
-<td>1.9%</td>
-<td>0.0004</td>
-</tr>
-<tr>
-<td>粤海投资</td>
-<td>52万</td>
-<td>3.3%</td>
-<td>0.0011</td>
-</tr>
-<tr>
-<td>NVDA</td>
-<td>26万</td>
-<td>1.7%</td>
-<td>0.0003</td>
-</tr>
-<tr>
-<td>NFLX</td>
-<td>8.7万</td>
-<td>0.6%</td>
-<td>0.00003</td>
-</tr>
-<tr>
-<td>现金/货基</td>
-<td>~179万</td>
-<td>11.6%</td>
-<td>0.0135</td>
-</tr>
-<tr>
-<td>其余小仓</td>
-<td>~约58万</td>
-<td>3.8%</td>
-<td>忽略</td>
-</tr>
-</tbody>
-</table>
-<p><strong>HHI ≈ 0.0437+0.0106+0.0092+0.0135+其余 ≈ 0.086</strong><br />
-<strong>有效持仓数 ≈ 1/0.086 ≈ 12只</strong></p>
-<table>
-<thead>
-<tr>
-<th>指标</th>
-<th>数值</th>
-<th>状态</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>HHI</td>
-<td>~0.086</td>
-<td>🟢 &lt; 0.15，集中度健康</td>
-</tr>
-<tr>
-<td>有效持仓数</td>
-<td>~12只</td>
-<td>🟢 合理</td>
-</tr>
-<tr>
-<td>最大单股（腾讯）</td>
-<td>20.9%</td>
-<td>🟢 &lt; 25%警戒线</td>
-</tr>
-</tbody>
-</table>
-<h3>中概风险集群</h3>
-<p>腾讯(20.9%) + 阿里(9.6%) + 美团(0.1%) + 小米(0.8%) + PDD(0.3%) = <strong>31.7%</strong><br />
-🟢 低于55%警戒线</p>
-<h3>3个标准压力情景</h3>
-<table>
-<thead>
-<tr>
-<th>情景</th>
-<th>冲击仓位</th>
-<th>总仓回撤</th>
-<th>状态</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>中概集群 -40%</td>
-<td>31.7%</td>
-<td><strong>-12.7%</strong></td>
-<td>🟢 可承受</td>
-</tr>
-<tr>
-<td>美科技(NVDA/TSLA/META) -30%</td>
-<td>6.1%</td>
-<td><strong>-1.8%</strong></td>
-<td>🟢 可承受</td>
-</tr>
-<tr>
-<td>A股新能源(宁德/比亚迪/阳光) -30%</td>
-<td>14.5%</td>
-<td><strong>-4.4%</strong></td>
-<td>🟢 可承受</td>
-</tr>
-</tbody>
-</table>
-<p><strong>集中度结论</strong>：🟢 整体健康，三个压力情景均在可承受范围内。</p></div>
-</details>
-
-<details class="dim-details" id="momentum">
-<summary>维度二：波段仓状态</summary>
-<div class="dim-content"><table>
-<thead>
-<tr>
-<th>波段仓</th>
-<th>成本</th>
-<th>现价</th>
-<th>盈亏</th>
-<th>状态</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>腾讯 1,000股</td>
-<td>HKD 605.25</td>
-<td>HKD 495.6</td>
-<td><strong>-18.1%</strong></td>
-<td>🔴 深度被套</td>
-</tr>
-<tr>
-<td>阿里 7,000股（原6000+今日1000）</td>
-<td>HKD 150.1（加权）</td>
-<td>HKD 123.0</td>
-<td><strong>-18.1%</strong></td>
-<td>🔴 深度被套</td>
-</tr>
-<tr>
-<td>MSFT 50股</td>
-<td>USD 400.99</td>
-<td>USD 371.04</td>
-<td><strong>-7.5%</strong></td>
-<td>🟡 小幅被套</td>
-</tr>
-</tbody>
-</table>
-<h3>ATR止损参考位</h3>
-<ul>
-<li><strong>腾讯</strong>：2倍ATR止损位约 <strong>HKD 470-475</strong>（当前未触发，但已被套18%，需警惕）</li>
-<li><strong>阿里</strong>：2倍ATR止损位约 <strong>HKD 115-118</strong>（当前123，距止损仅4-6%，🔴 高危）</li>
-<li><strong>MSFT</strong>：2倍ATR止损位约 <strong>USD 350-355</strong>（当前未触发）</li>
-</ul>
-<h3>今日新增波段买入记录</h3>
-<ul>
-<li>阿里 +1,000股 @ HKD 123.7，波段仓加权成本更新为 <strong>HKD 150.1</strong></li>
-<li>注：今日加仓阿里属于在被套状态下摊薄，需留意是否符合纪律（买入前是否有明确计划？）</li>
-</ul></div>
-</details>
-
-<details class="dim-details" id="logic">
-<summary>维度三：投资逻辑验证</summary>
-<div class="dim-content"><h3>逻辑标签（本期更新）</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>标签</th>
-<th>逻辑是否成立</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>腾讯（底仓）</td>
-<td>质量型</td>
-<td>✅</td>
-<td>Q4经营利润+17%，广告+游戏双轮</td>
-</tr>
-<tr>
-<td>阿里（底仓）</td>
-<td>价值型</td>
-<td>✅</td>
-<td>估值仍处历史低位，云业务修复中</td>
-</tr>
-<tr>
-<td>比亚迪</td>
-<td>动量型→价值型</td>
-<td>⚠️</td>
-<td><strong>明日(3/27)年报是关键验证点</strong></td>
-</tr>
-<tr>
-<td>宁德时代</td>
-<td>质量型</td>
-<td>✅</td>
-<td>Q4净利+57%，成本235%已回，底仓逻辑强</td>
-</tr>
-<tr>
-<td>NVDA</td>
-<td>动量型</td>
-<td>✅</td>
-<td>AI算力需求持续，估值偏高但逻辑未破</td>
-</tr>
-<tr>
-<td>TSLA</td>
-<td>转变中</td>
-<td>⚠️</td>
-<td>马斯克政治风险加大，需持续观察</td>
-</tr>
-<tr>
-<td>MSFT</td>
-<td>质量型</td>
-<td>✅</td>
-<td>Azure增速稳定，AI Copilot渗透持续</td>
-</tr>
-<tr>
-<td>NFLX</td>
-<td>动量型</td>
-<td>✅</td>
-<td>广告+体育内容驱动，用户增长超预期</td>
-</tr>
-<tr>
-<td>医药ETF</td>
-<td>防御型</td>
-<td>🟡</td>
-<td>防御属性与25%目标效率不匹配</td>
-</tr>
-<tr>
-<td>机器人ETF</td>
-<td>动量型</td>
-<td>✅</td>
-<td>AI+人形机器人主题仍在</td>
-</tr>
-<tr>
-<td>中信证券</td>
-<td>❌ 失效</td>
-<td>❌</td>
-<td>业绩增速仅6%，拖累组合</td>
-</tr>
-<tr>
-<td>粤海投资</td>
-<td>防御型</td>
-<td>🟡</td>
-<td>收息稳定但增长有限，效率偏低</td>
-</tr>
-<tr>
-<td>东方财富</td>
-<td>已清仓</td>
-<td>—</td>
-<td>今日卖出，Q4业绩失速</td>
-</tr>
-</tbody>
-</table>
-<h3>行为自查（3问）</h3>
-<ol>
-<li>
-<p><strong>上期有没有在大涨后加仓？</strong> 🔴<br />
-   - 腾讯波段成本HKD 605，高于底仓HKD 403，有追高痕迹<br />
-   - 今日阿里加仓：在原波段已被套18%的情况下再加仓，属于摊薄操作，需确认是否有明确计划支撑</p>
-</li>
-<li>
-<p><strong>波段有没有该止损没止的？</strong> 🟡<br />
-   - 腾讯/阿里波段均被套&gt;18%，尚未触ATR止损位<br />
-   - 阿里距止损位仅4-6%，需要设好提醒</p>
-</li>
-<li>
-<p><strong>有没有持仓"放着不看"超3个月？</strong> 🟡<br />
-   - 中信证券、医药ETF有此嫌疑，需要明确处置计划</p>
-</li>
-</ol>
-<h3>机会成本提示</h3>
-<p>中信证券（约37万CNY，预期收益仅5-6%）→ 若换仓阳光电源（目标+25%），每年多贡献约7万CNY收益。</p></div>
-</details>
-
-<details class="dim-details" id="attribution">
-<summary>维度四：归因分析</summary>
-<div class="dim-content"><p>首次体检，尚无历史基线，<strong>下次季度深检（2026年Q2）启动</strong>。</p></div>
-</details>
-
-<details class="dim-details" id="health">
-<summary>维度五：组合健康度预判</summary>
-<div class="dim-content"><h3>现金合理性</h3>
-<table>
-<thead>
-<tr>
-<th>现金类型</th>
+<th>市场</th>
 <th>金额</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>港股现金</td>
-<td>HKD 102,506</td>
-<td></td>
-</tr>
-<tr>
-<td>港股货基</td>
-<td>HKD 424,543</td>
-<td></td>
-</tr>
-<tr>
-<td>美元货基</td>
-<td>USD 70,680</td>
-<td></td>
-</tr>
-<tr>
-<td>A股现金</td>
-<td>CNY 572,229</td>
-<td>含东方财富回款约40万待确认</td>
-</tr>
-<tr>
-<td><strong>现金合计（折CNY）</strong></td>
-<td><strong>≈ 179万</strong></td>
-<td>占总资产<strong>11.6%</strong></td>
-</tr>
-</tbody>
-</table>
-<p>🟢 在目标5-15%区间内，健康。</p>
-<h3>仓位与预期匹配度</h3>
-<table>
-<thead>
-<tr>
-<th>排名</th>
-<th>标的</th>
 <th>占比</th>
-<th>预期收益</th>
-<th>匹配？</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td>腾讯</td>
-<td>20.9%</td>
-<td>+26%</td>
-<td>✅ 匹配</td>
+<td>港股（持仓+现金+货基）</td>
+<td>645万</td>
+<td>41.7%</td>
 </tr>
 <tr>
-<td>2</td>
-<td>比亚迪</td>
-<td>10.3%</td>
-<td>+17%</td>
-<td>🟡 偏低，等年报验证</td>
+<td>美股（持仓+货基）</td>
+<td>229万</td>
+<td>14.8%</td>
 </tr>
 <tr>
-<td>3</td>
-<td>阿里</td>
-<td>9.6%</td>
-<td>+22%</td>
-<td>✅ 匹配</td>
+<td>A股（持仓+现金）</td>
+<td>511万</td>
+<td>33.0%</td>
 </tr>
 <tr>
-<td>4</td>
-<td>医药ETF</td>
-<td>5.7%</td>
-<td>+15%</td>
-<td>❌ 不匹配，防御仓占据高位</td>
+<td>A股现金中含东方财富回款</td>
+<td>约40万</td>
+<td>—</td>
 </tr>
 <tr>
-<td>5</td>
-<td>TSLA</td>
-<td>3.6%</td>
-<td>+20%</td>
-<td>🟡 逻辑有扰动</td>
-</tr>
-</tbody>
-</table>
-<h3>组合预期收益估算</h3>
-<table>
-<thead>
-<tr>
-<th>板块</th>
-<th>占比</th>
-<th>预期收益</th>
-<th>贡献</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>中概互联</td>
-<td>31.7%</td>
-<td>+22%</td>
-<td>+7.0%</td>
-</tr>
-<tr>
-<td>A股新能源</td>
-<td>14.5%</td>
-<td>+25%</td>
-<td>+3.6%</td>
-</tr>
-<tr>
-<td>美股科技</td>
-<td>12.0%</td>
-<td>+20%</td>
-<td>+2.4%</td>
-</tr>
-<tr>
-<td>防御/收息（粤海+银行+医药ETF）</td>
-<td>14.0%</td>
-<td>+8%</td>
-<td>+1.1%</td>
-</tr>
-<tr>
-<td>收益拖累（中信证券）</td>
-<td>2.4%</td>
-<td>+5%</td>
-<td>+0.1%</td>
-</tr>
-<tr>
-<td>现金/货基</td>
-<td>11.6%</td>
-<td>+3%</td>
-<td>+0.3%</td>
-</tr>
-<tr>
-<td>其余</td>
-<td>13.8%</td>
-<td>+18%</td>
-<td>+2.5%</td>
-</tr>
-<tr>
-<td><strong>合计</strong></td>
+<td><strong>总计</strong></td>
+<td><strong>≈ 1,546万 CNY</strong></td>
 <td>100%</td>
-<td></td>
-<td><strong>≈ 17.0%</strong></td>
 </tr>
 </tbody>
 </table>
-<p>🔴 <strong>组合预期收益约17%，距年化目标25%差距约8%</strong></p>
-<h3>差距来源</h3>
+
+
+<details>
+<summary>港股持仓明细</summary>
 <table>
 <thead>
 <tr>
-<th>原因</th>
-<th>估计影响</th>
+<th>标的</th>
+<th>股数</th>
+<th>现价</th>
+<th>市值</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>防御仓过重（医药ETF+银行+粤海占14%，贡献仅1.1%）</td>
-<td>约-3%</td>
+<td>腾讯控股</td>
+<td>7,000</td>
+<td>495.6</td>
+<td>3,469,200</td>
 </tr>
 <tr>
-<td>中信证券收益黑洞</td>
-<td>约-0.5%</td>
+<td>阿里巴巴</td>
+<td>13,000</td>
+<td>123.0</td>
+<td>1,599,000</td>
 </tr>
 <tr>
-<td>现金效率偏低</td>
-<td>约-1%</td>
+<td>粤海投资</td>
+<td>74,000</td>
+<td>7.48</td>
+<td>553,520</td>
 </tr>
 <tr>
-<td>波段仓被套（腾讯/阿里波段贡献低）</td>
-<td>约-1.5%</td>
+<td>百济神州</td>
+<td>1,800</td>
+<td>163.5</td>
+<td>294,300</td>
+</tr>
+<tr>
+<td>恒瑞医药</td>
+<td>3,000</td>
+<td>61.05</td>
+<td>183,150</td>
+</tr>
+<tr>
+<td>小米集团</td>
+<td>4,000</td>
+<td>32.3</td>
+<td>129,200</td>
+</tr>
+<tr>
+<td>建滔积层板</td>
+<td>7,000</td>
+<td>20.04</td>
+<td>140,280</td>
+</tr>
+<tr>
+<td>美团</td>
+<td>200</td>
+<td>86.2</td>
+<td>17,240</td>
+</tr>
+<tr>
+<td>吉利汽车</td>
+<td>0</td>
+<td>20.56</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>港股持仓合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>HKD 6,385,890</strong></td>
 </tr>
 </tbody>
-</table></div>
+</table>
 </details>
 
-    
-<details class="dim-details" id="assets">
-<summary>💰 总资产计算明细</summary>
-<div class="dim-content"><h3>价格基准（富途实时）</h3>
+<details>
+<summary>美股持仓明细</summary>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>股数</th>
+<th>现价</th>
+<th>市值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TSLA</td>
+<td>200</td>
+<td>385.95</td>
+<td>77,190</td>
+</tr>
+<tr>
+<td>MSFT</td>
+<td>150</td>
+<td>371.04</td>
+<td>55,656</td>
+</tr>
+<tr>
+<td>NVDA</td>
+<td>200</td>
+<td>178.68</td>
+<td>35,736</td>
+</tr>
+<tr>
+<td>META</td>
+<td>70</td>
+<td>594.89</td>
+<td>41,642</td>
+</tr>
+<tr>
+<td>NFLX</td>
+<td>130</td>
+<td>92.28</td>
+<td>11,996</td>
+</tr>
+<tr>
+<td>SOFI</td>
+<td>810</td>
+<td>16.56</td>
+<td>13,414</td>
+</tr>
+<tr>
+<td>AMZN</td>
+<td>5</td>
+<td>211.71</td>
+<td>1,059</td>
+</tr>
+<tr>
+<td>PDD</td>
+<td>50</td>
+<td>102.61</td>
+<td>5,131</td>
+</tr>
+<tr>
+<td>GOOG</td>
+<td>2</td>
+<td>289.59</td>
+<td>579</td>
+</tr>
+<tr>
+<td>UNH</td>
+<td>2</td>
+<td>270.55</td>
+<td>541</td>
+</tr>
+<tr>
+<td>RKLB</td>
+<td>10</td>
+<td>72.88</td>
+<td>729</td>
+</tr>
+<tr>
+<td>CRCL</td>
+<td>5</td>
+<td>103.86</td>
+<td>519</td>
+</tr>
+<tr>
+<td><strong>美股持仓合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>USD 244,192</strong></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details>
+<summary>A股持仓明细</summary>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>股数</th>
+<th>现价</th>
+<th>市值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>比亚迪</td>
+<td>15,000</td>
+<td>106.67</td>
+<td>1,600,050</td>
+</tr>
+<tr>
+<td>医药ETF</td>
+<td>2,457,100</td>
+<td>0.357</td>
+<td>876,785</td>
+</tr>
+<tr>
+<td>机器人ETF</td>
+<td>700,000</td>
+<td>0.948</td>
+<td>663,600</td>
+</tr>
+<tr>
+<td>宁德时代</td>
+<td>1,000</td>
+<td>390.82</td>
+<td>390,820</td>
+</tr>
+<tr>
+<td>阳光电源</td>
+<td>2,000</td>
+<td>167.08</td>
+<td>334,160</td>
+</tr>
+<tr>
+<td>中信证券</td>
+<td>15,200</td>
+<td>24.28</td>
+<td>369,056</td>
+</tr>
+<tr>
+<td>招商银行</td>
+<td>2,500</td>
+<td>39.75</td>
+<td>99,375</td>
+</tr>
+<tr>
+<td>兴业银行</td>
+<td>5,500</td>
+<td>18.76</td>
+<td>103,180</td>
+</tr>
+<tr>
+<td>交通银行</td>
+<td>15,000</td>
+<td>6.77</td>
+<td>101,550</td>
+</tr>
+<tr>
+<td><strong>A股持仓合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>CNY 4,538,576</strong></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details>
+<summary>详细价格表（港/美股实时）</summary>
 <table>
 <thead>
 <tr>
@@ -1005,739 +907,12 @@
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>A股价格（近期收盘）：比亚迪106.67、东方财富已清仓、阳光电源167.08、宁德时代390.82、医药ETF 0.357、机器人ETF 0.948、中信证券24.28、招商银行39.75、兴业银行18.76、交通银行6.77</p>
-</blockquote>
-<h3>汇率</h3>
-<ul>
-<li>HKD/CNY = 0.933</li>
-<li>USD/CNY = 7.27</li>
-</ul>
-<h3>港股（今日交易后）</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价HKD</th>
-<th>市值HKD</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>腾讯控股</td>
-<td>7,000</td>
-<td>495.6</td>
-<td>3,469,200</td>
-</tr>
-<tr>
-<td>阿里巴巴</td>
-<td>13,000</td>
-<td>123.0</td>
-<td>1,599,000</td>
-</tr>
-<tr>
-<td>粤海投资</td>
-<td>74,000</td>
-<td>7.48</td>
-<td>553,520</td>
-</tr>
-<tr>
-<td>百济神州</td>
-<td>1,800</td>
-<td>163.5</td>
-<td>294,300</td>
-</tr>
-<tr>
-<td>恒瑞医药</td>
-<td>3,000</td>
-<td>61.05</td>
-<td>183,150</td>
-</tr>
-<tr>
-<td>小米集团</td>
-<td>4,000</td>
-<td>32.3</td>
-<td>129,200</td>
-</tr>
-<tr>
-<td>建滔积层板</td>
-<td>7,000</td>
-<td>20.04</td>
-<td>140,280</td>
-</tr>
-<tr>
-<td>美团</td>
-<td>200</td>
-<td>86.2</td>
-<td>17,240</td>
-</tr>
-<tr>
-<td>吉利汽车</td>
-<td>0</td>
-<td>20.56</td>
-<td>0</td>
-</tr>
-<tr>
-<td><strong>港股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>HKD 6,385,890</strong></td>
-</tr>
-</tbody>
-</table>
-<p>港股现金：HKD 102,506<br />
-港股货基：HKD 424,543（HKD_FUND，不含美元折算）<br />
-<strong>港股合计：HKD 6,912,939 ≈ CNY 645万</strong></p>
-<h3>美股</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价USD</th>
-<th>市值USD</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>TSLA</td>
-<td>200</td>
-<td>385.95</td>
-<td>77,190</td>
-</tr>
-<tr>
-<td>MSFT</td>
-<td>150</td>
-<td>371.04</td>
-<td>55,656</td>
-</tr>
-<tr>
-<td>NVDA</td>
-<td>200</td>
-<td>178.68</td>
-<td>35,736</td>
-</tr>
-<tr>
-<td>META</td>
-<td>70</td>
-<td>594.89</td>
-<td>41,642</td>
-</tr>
-<tr>
-<td>NFLX</td>
-<td>130</td>
-<td>92.28</td>
-<td>11,996</td>
-</tr>
-<tr>
-<td>SOFI</td>
-<td>810</td>
-<td>16.56</td>
-<td>13,414</td>
-</tr>
-<tr>
-<td>AMZN</td>
-<td>5</td>
-<td>211.71</td>
-<td>1,059</td>
-</tr>
-<tr>
-<td>PDD</td>
-<td>50</td>
-<td>102.61</td>
-<td>5,131</td>
-</tr>
-<tr>
-<td>GOOG</td>
-<td>2</td>
-<td>289.59</td>
-<td>579</td>
-</tr>
-<tr>
-<td>UNH</td>
-<td>2</td>
-<td>270.55</td>
-<td>541</td>
-</tr>
-<tr>
-<td>RKLB</td>
-<td>10</td>
-<td>72.88</td>
-<td>729</td>
-</tr>
-<tr>
-<td>CRCL</td>
-<td>5</td>
-<td>103.86</td>
-<td>519</td>
-</tr>
-<tr>
-<td><strong>美股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>USD 244,192</strong></td>
-</tr>
-</tbody>
-</table>
-<p>美元货基：USD 70,680<br />
-<strong>美股合计：USD 314,872 ≈ CNY 229万</strong></p>
-<h3>A股（今日：东方财富已清仓）</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价CNY</th>
-<th>市值CNY</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>比亚迪</td>
-<td>15,000</td>
-<td>106.67</td>
-<td>1,600,050</td>
-</tr>
-<tr>
-<td>医药ETF</td>
-<td>2,457,100</td>
-<td>0.357</td>
-<td>876,785</td>
-</tr>
-<tr>
-<td>机器人ETF</td>
-<td>700,000</td>
-<td>0.948</td>
-<td>663,600</td>
-</tr>
-<tr>
-<td>宁德时代</td>
-<td>1,000</td>
-<td>390.82</td>
-<td>390,820</td>
-</tr>
-<tr>
-<td>阳光电源</td>
-<td>2,000</td>
-<td>167.08</td>
-<td>334,160</td>
-</tr>
-<tr>
-<td>中信证券</td>
-<td>15,200</td>
-<td>24.28</td>
-<td>369,056</td>
-</tr>
-<tr>
-<td>招商银行</td>
-<td>2,500</td>
-<td>39.75</td>
-<td>99,375</td>
-</tr>
-<tr>
-<td>兴业银行</td>
-<td>5,500</td>
-<td>18.76</td>
-<td>103,180</td>
-</tr>
-<tr>
-<td>交通银行</td>
-<td>15,000</td>
-<td>6.77</td>
-<td>101,550</td>
-</tr>
-<tr>
-<td><strong>A股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>CNY 4,538,576</strong></td>
-</tr>
-</tbody>
-</table>
-<p>A股现金：CNY 572,229（含东方财富卖出约40万回款，待富途结算确认）<br />
-<strong>A股合计：CNY 5,110,805 ≈ CNY 511万</strong></p>
-<h3>总资产汇总</h3>
-<table>
-<thead>
-<tr>
-<th>市场</th>
-<th>折合CNY</th>
-<th>占比</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>港股（持仓+现金+货基）</td>
-<td>645万</td>
-<td>41.7%</td>
-</tr>
-<tr>
-<td>美股（持仓+货基）</td>
-<td>229万</td>
-<td>14.8%</td>
-</tr>
-<tr>
-<td>A股（持仓+现金）</td>
-<td>511万</td>
-<td>33.0%</td>
-</tr>
-<tr>
-<td>A股现金中含东方财富回款</td>
-<td>约40万</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>总计</strong></td>
-<td><strong>≈ 1,546万 CNY</strong></td>
-<td>100%</td>
-</tr>
-</tbody>
-</table></div>
 </details>
 
-</div>
 
-<!-- 原始完整报告 -->
-<div class="original-report">
-    <details class="dim-details original-details">
-        <summary>📄 查看完整原始报告</summary>
-        <div class="dim-content original-content"><h1>光剑系统 · 五维雷达体检报告</h1>
-<p><strong>日期</strong>：2026-03-26<br />
-<strong>框架版本</strong>：五维雷达 v1.0<br />
-<strong>数据来源</strong>：港/美股 → 富途OpenD实时价格；A股 → 近期收盘价（人工校验基线）</p>
-<hr />
-<h2>总资产计算</h2>
-<h3>价格基准（富途实时）</h3>
-<table>
-<thead>
-<tr>
-<th>代码</th>
-<th>名称</th>
-<th>价格</th>
-<th>货币</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>HK.00175</td>
-<td>吉利汽车</td>
-<td>20.56</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.00270</td>
-<td>粤海投资</td>
-<td>7.48</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.00700</td>
-<td>腾讯控股</td>
-<td>495.6</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.01276</td>
-<td>恒瑞医药</td>
-<td>61.05</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.01810</td>
-<td>小米集团</td>
-<td>32.3</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.01888</td>
-<td>建滔积层板</td>
-<td>20.04</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.03690</td>
-<td>美团</td>
-<td>86.2</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.06160</td>
-<td>百济神州</td>
-<td>163.5</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>HK.09988</td>
-<td>阿里巴巴</td>
-<td>123.0</td>
-<td>HKD</td>
-</tr>
-<tr>
-<td>US.AMZN</td>
-<td>亚马逊</td>
-<td>211.71</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.CRCL</td>
-<td>Circle</td>
-<td>103.86</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.GOOG</td>
-<td>谷歌</td>
-<td>289.59</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.META</td>
-<td>Meta</td>
-<td>594.89</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.MSFT</td>
-<td>微软</td>
-<td>371.04</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.NFLX</td>
-<td>奈飞</td>
-<td>92.28</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.NVDA</td>
-<td>英伟达</td>
-<td>178.68</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.PDD</td>
-<td>拼多多</td>
-<td>102.61</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.RKLB</td>
-<td>Rocket Lab</td>
-<td>72.88</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.SOFI</td>
-<td>SoFi</td>
-<td>16.56</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.TSLA</td>
-<td>特斯拉</td>
-<td>385.95</td>
-<td>USD</td>
-</tr>
-<tr>
-<td>US.UNH</td>
-<td>联合健康</td>
-<td>270.55</td>
-<td>USD</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>A股价格（近期收盘）：比亚迪106.67、东方财富已清仓、阳光电源167.08、宁德时代390.82、医药ETF 0.357、机器人ETF 0.948、中信证券24.28、招商银行39.75、兴业银行18.76、交通银行6.77</p>
-</blockquote>
-<h3>汇率</h3>
-<ul>
-<li>HKD/CNY = 0.933</li>
-<li>USD/CNY = 7.27</li>
-</ul>
-<h3>港股（今日交易后）</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价HKD</th>
-<th>市值HKD</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>腾讯控股</td>
-<td>7,000</td>
-<td>495.6</td>
-<td>3,469,200</td>
-</tr>
-<tr>
-<td>阿里巴巴</td>
-<td>13,000</td>
-<td>123.0</td>
-<td>1,599,000</td>
-</tr>
-<tr>
-<td>粤海投资</td>
-<td>74,000</td>
-<td>7.48</td>
-<td>553,520</td>
-</tr>
-<tr>
-<td>百济神州</td>
-<td>1,800</td>
-<td>163.5</td>
-<td>294,300</td>
-</tr>
-<tr>
-<td>恒瑞医药</td>
-<td>3,000</td>
-<td>61.05</td>
-<td>183,150</td>
-</tr>
-<tr>
-<td>小米集团</td>
-<td>4,000</td>
-<td>32.3</td>
-<td>129,200</td>
-</tr>
-<tr>
-<td>建滔积层板</td>
-<td>7,000</td>
-<td>20.04</td>
-<td>140,280</td>
-</tr>
-<tr>
-<td>美团</td>
-<td>200</td>
-<td>86.2</td>
-<td>17,240</td>
-</tr>
-<tr>
-<td>吉利汽车</td>
-<td>0</td>
-<td>20.56</td>
-<td>0</td>
-</tr>
-<tr>
-<td><strong>港股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>HKD 6,385,890</strong></td>
-</tr>
-</tbody>
-</table>
-<p>港股现金：HKD 102,506<br />
-港股货基：HKD 424,543（HKD_FUND，不含美元折算）<br />
-<strong>港股合计：HKD 6,912,939 ≈ CNY 645万</strong></p>
-<h3>美股</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价USD</th>
-<th>市值USD</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>TSLA</td>
-<td>200</td>
-<td>385.95</td>
-<td>77,190</td>
-</tr>
-<tr>
-<td>MSFT</td>
-<td>150</td>
-<td>371.04</td>
-<td>55,656</td>
-</tr>
-<tr>
-<td>NVDA</td>
-<td>200</td>
-<td>178.68</td>
-<td>35,736</td>
-</tr>
-<tr>
-<td>META</td>
-<td>70</td>
-<td>594.89</td>
-<td>41,642</td>
-</tr>
-<tr>
-<td>NFLX</td>
-<td>130</td>
-<td>92.28</td>
-<td>11,996</td>
-</tr>
-<tr>
-<td>SOFI</td>
-<td>810</td>
-<td>16.56</td>
-<td>13,414</td>
-</tr>
-<tr>
-<td>AMZN</td>
-<td>5</td>
-<td>211.71</td>
-<td>1,059</td>
-</tr>
-<tr>
-<td>PDD</td>
-<td>50</td>
-<td>102.61</td>
-<td>5,131</td>
-</tr>
-<tr>
-<td>GOOG</td>
-<td>2</td>
-<td>289.59</td>
-<td>579</td>
-</tr>
-<tr>
-<td>UNH</td>
-<td>2</td>
-<td>270.55</td>
-<td>541</td>
-</tr>
-<tr>
-<td>RKLB</td>
-<td>10</td>
-<td>72.88</td>
-<td>729</td>
-</tr>
-<tr>
-<td>CRCL</td>
-<td>5</td>
-<td>103.86</td>
-<td>519</td>
-</tr>
-<tr>
-<td><strong>美股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>USD 244,192</strong></td>
-</tr>
-</tbody>
-</table>
-<p>美元货基：USD 70,680<br />
-<strong>美股合计：USD 314,872 ≈ CNY 229万</strong></p>
-<h3>A股（今日：东方财富已清仓）</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>股数</th>
-<th>现价CNY</th>
-<th>市值CNY</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>比亚迪</td>
-<td>15,000</td>
-<td>106.67</td>
-<td>1,600,050</td>
-</tr>
-<tr>
-<td>医药ETF</td>
-<td>2,457,100</td>
-<td>0.357</td>
-<td>876,785</td>
-</tr>
-<tr>
-<td>机器人ETF</td>
-<td>700,000</td>
-<td>0.948</td>
-<td>663,600</td>
-</tr>
-<tr>
-<td>宁德时代</td>
-<td>1,000</td>
-<td>390.82</td>
-<td>390,820</td>
-</tr>
-<tr>
-<td>阳光电源</td>
-<td>2,000</td>
-<td>167.08</td>
-<td>334,160</td>
-</tr>
-<tr>
-<td>中信证券</td>
-<td>15,200</td>
-<td>24.28</td>
-<td>369,056</td>
-</tr>
-<tr>
-<td>招商银行</td>
-<td>2,500</td>
-<td>39.75</td>
-<td>99,375</td>
-</tr>
-<tr>
-<td>兴业银行</td>
-<td>5,500</td>
-<td>18.76</td>
-<td>103,180</td>
-</tr>
-<tr>
-<td>交通银行</td>
-<td>15,000</td>
-<td>6.77</td>
-<td>101,550</td>
-</tr>
-<tr>
-<td><strong>A股持仓合计</strong></td>
-<td></td>
-<td></td>
-<td><strong>CNY 4,538,576</strong></td>
-</tr>
-</tbody>
-</table>
-<p>A股现金：CNY 572,229（含东方财富卖出约40万回款，待富途结算确认）<br />
-<strong>A股合计：CNY 5,110,805 ≈ CNY 511万</strong></p>
-<h3>总资产汇总</h3>
-<table>
-<thead>
-<tr>
-<th>市场</th>
-<th>折合CNY</th>
-<th>占比</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>港股（持仓+现金+货基）</td>
-<td>645万</td>
-<td>41.7%</td>
-</tr>
-<tr>
-<td>美股（持仓+货基）</td>
-<td>229万</td>
-<td>14.8%</td>
-</tr>
-<tr>
-<td>A股（持仓+现金）</td>
-<td>511万</td>
-<td>33.0%</td>
-</tr>
-<tr>
-<td>A股现金中含东方财富回款</td>
-<td>约40万</td>
-<td>—</td>
-</tr>
-<tr>
-<td><strong>总计</strong></td>
-<td><strong>≈ 1,546万 CNY</strong></td>
-<td>100%</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>▌ 维度一：集中度风险</h2>
+
+                
+<h2 id="dim1">维度一：集中度风险</h2>
 <h3>主要持仓占比（CNY 1,546万基准）</h3>
 <table>
 <thead>
@@ -1910,8 +1085,8 @@
 </tbody>
 </table>
 <p><strong>集中度结论</strong>：🟢 整体健康，三个压力情景均在可承受范围内。</p>
-<hr />
-<h2>▌ 维度二：波段仓状态</h2>
+
+<h2 id="dim2">维度二：波段仓状态</h2>
 <table>
 <thead>
 <tr>
@@ -1957,8 +1132,8 @@
 <li>阿里 +1,000股 @ HKD 123.7，波段仓加权成本更新为 <strong>HKD 150.1</strong></li>
 <li>注：今日加仓阿里属于在被套状态下摊薄，需留意是否符合纪律（买入前是否有明确计划？）</li>
 </ul>
-<hr />
-<h2>▌ 维度三：投资逻辑验证</h2>
+
+<h2 id="dim3">维度三：投资逻辑验证</h2>
 <h3>逻辑标签（本期更新）</h3>
 <table>
 <thead>
@@ -2069,11 +1244,11 @@
 </ol>
 <h3>机会成本提示</h3>
 <p>中信证券（约37万CNY，预期收益仅5-6%）→ 若换仓阳光电源（目标+25%），每年多贡献约7万CNY收益。</p>
-<hr />
-<h2>▌ 维度四：归因分析</h2>
+
+<h2 id="dim4">维度四：归因分析</h2>
 <p>首次体检，尚无历史基线，<strong>下次季度深检（2026年Q2）启动</strong>。</p>
-<hr />
-<h2>▌ 维度五：组合健康度预判</h2>
+
+<h2 id="dim5">维度五：组合健康度预判</h2>
 <h3>现金合理性</h3>
 <table>
 <thead>
@@ -2250,70 +1425,20 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2>本期行动建议</h2>
-<h3>P0 近期优先处理</h3>
-<p><strong>1. 阿里波段止损位设置（本周内）</strong><br />
-现价HKD 123，距ATR止损位HK$115-118仅4-6%。建议在富途设好条件单止损，不要等到触发时再犹豫。</p>
-<p><strong>2. 比亚迪年报（明日3/27）</strong><br />
-- 净利 &gt; 400亿 → 可考虑加仓5000股（波段）<br />
-- 净利 &lt; 350亿 → 考虑减仓5000股锁定利润（当前成本87.95，现价106.67，盈利21%）</p>
-<h3>P1 中期结构调整</h3>
-<p><strong>3. 中信证券处置</strong><br />
-逻辑已失效，约37万CNY占2.4%仓位，预期收益仅5%。建议评估清仓时机，释放资金。</p>
-<p><strong>4. 医药ETF减仓</strong><br />
-占5.7%但预期收益15%，与25%目标不匹配。可考虑减仓50%（释放约44万CNY），提升组合收益约1%。</p>
-<h3>P2 持续监控</h3>
-<table>
-<thead>
-<tr>
-<th>标的</th>
-<th>监控指标</th>
-<th>警戒线</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>阿里波段</td>
-<td>现价</td>
-<td>&lt; HKD 118 触发止损</td>
-</tr>
-<tr>
-<td>腾讯波段</td>
-<td>现价</td>
-<td>&lt; HKD 470 触发止损</td>
-</tr>
-<tr>
-<td>中概集群</td>
-<td>总占比</td>
-<td>&gt; 55%</td>
-</tr>
-<tr>
-<td>腾讯单股</td>
-<td>占比</td>
-<td>&gt; 25%</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>本期重点关注</h2>
-<ol>
-<li><strong>3/27比亚迪年报</strong> — 直接影响A股最大仓位操作方向</li>
-<li><strong>阿里波段止损位HKD 115-118</strong> — 本周最高优先级风控动作</li>
-</ol>
-<hr />
-<h2>数据说明</h2>
+
+
+                <h2 id="footer">数据说明</h2>
 <ul>
 <li>港/美股价格：富途OpenD实时快照（2026-03-26 约15:49）</li>
 <li>A股价格：近期收盘价，待人工核对</li>
 <li>汇率：HKD/CNY=0.933，USD/CNY=7.27</li>
 <li>东方财富回款约CNY 40万已计入A股现金，待富途结算确认</li>
 </ul>
-<hr />
-<p><em>生成时间：2026-03-26 | 框架：五维雷达 v1.0</em></p></div>
-    </details>
-</div>
 
+                <hr style="margin: 40px 0 20px;">
+                <p style="font-size: 13px; color: #787b86;">
+                    生成时间: 2026-03-26 | 框架: 五维雷达 v1.0
+                </p>
             </div>
         </div>
     </div>
