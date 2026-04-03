@@ -388,19 +388,18 @@ def zscore_normalize(factors):
 
 
 def generate_html(factors, trade_date, next_date, update_time, position=None, trades=None):
-    """生成HTML页面"""
+    """生成HTML页面 - 策略3收盘版布局"""
     sorted_etfs = sorted(factors.items(), key=lambda x: x[1]['total_score'], reverse=True)
+    top_etf = sorted_etfs[0][1]
+    top_score = top_etf['total_score']
 
-    # 生成排名表格行
+    # 生成排名表格
     rank_rows = []
     rank_colors = ['rank-1', 'rank-2', 'rank-3', 'rank-4']
-
     for i, (symbol, f) in enumerate(sorted_etfs):
         weekly_class = 'change-up' if f['weekly'] >= 0 else 'change-down'
         score_class = 'score-positive' if f['total_score'] >= 0 else 'score-negative'
-
         weekly_str = f"+{f['weekly']:.2f}%" if f['weekly'] >= 0 else f"{f['weekly']:.2f}%"
-
         row = f"""                <tr>
                     <td><span class="rank-num {rank_colors[i]}">{i+1}</span></td>
                     <td><span class="etf-name">{f['name']}</span><span class="etf-code">{f['code']}</span></td>
@@ -408,14 +407,13 @@ def generate_html(factors, trade_date, next_date, update_time, position=None, tr
                     <td style="text-align:right"><span class="score {score_class}">{f['total_score']:.3f}</span></td>
                 </tr>"""
         rank_rows.append(row)
-
     rank_table_body = '\n'.join(rank_rows)
 
-    # 获取排名第1的ETF作为建议
-    top_etf = sorted_etfs[0][1]
-
-    # 生成持仓HTML
+    # 持仓和信号计算
     if position:
+        current_score = next((f['total_score'] for sym, f in factors.items() if f['code'] == position['code']), 0)
+        threshold = current_score * 1.5
+        should_trade = top_score > threshold
         pnl_class = 'pnl-up' if position['pnl_pct'] >= 0 else 'pnl-down'
         pnl_str = f"+{position['pnl_pct']:.2f}%" if position['pnl_pct'] >= 0 else f"{position['pnl_pct']:.2f}%"
         holding_html = f"""        <div class="holding-card">
@@ -429,9 +427,18 @@ def generate_html(factors, trade_date, next_date, update_time, position=None, tr
                 <div class="holding-label">持仓收益</div>
             </div>
         </div>"""
-        signal_action = "signal-hold"
-        signal_text = "HOLD"
-        signal_detail = f"当前持仓{position['name']} ({position['code']})<br>继续持仓等待，下次评估: {next_date}"
+        if should_trade:
+            signal_action, signal_text = "signal-buy", "BUY"
+            signal_detail = f"调仓至 <strong>{top_etf['name']}</strong><br>下周一 (4月6日) 14:50 卖出 {position['name']}，买入 {top_etf['name']}"
+        else:
+            signal_action, signal_text = "signal-hold", "HOLD"
+            signal_detail = f"继续持有 <strong>{position['name']}</strong><br>下周一 (4月6日) 无操作"
+        calc_html = f"""            <div class="calc-box">
+                <div class="calc-row"><span>当前持仓得分</span><span>{current_score:.3f}</span></div>
+                <div class="calc-row"><span>第1名得分</span><span>{top_score:.3f}</span></div>
+                <div class="calc-row"><span>阈值条件 (×1.5)</span><span>{current_score:.3f} × 1.5 = {threshold:.3f}</span></div>
+                <div class="calc-row"><span>{top_score:.3f} {'>' if should_trade else '<'} {threshold:.3f} → {'满足' if should_trade else '不满足'}调仓条件</span><span>{'✓ 调仓' if should_trade else '✓ 不调仓'}</span></div>
+            </div>"""
     else:
         holding_html = f"""        <div class="holding-card">
             <div>
@@ -444,26 +451,34 @@ def generate_html(factors, trade_date, next_date, update_time, position=None, tr
                 <div class="holding-label">持仓收益</div>
             </div>
         </div>"""
-        signal_action = "signal-buy"
-        signal_text = "BUY"
-        signal_detail = f"当前空仓 → 买入{top_etf['name']} ({top_etf['code']})<br>目标仓位: 100%"
+        signal_action, signal_text = "signal-buy", "BUY"
+        signal_detail = f"当前空仓 → 买入<strong>{top_etf['name']}</strong><br>下周一 (4月6日) 14:50 建仓"
+        calc_html = ""
 
-    # 生成交易记录HTML
-    if trades:
-        trade_items = []
-        for t in trades:
-            trade_items.append(f"""            <div class="trade-item">
+    # 交易记录 - 只显示最近1条
+    if trades and len(trades) > 0:
+        t = trades[-1]
+        trade_list_html = f"""            <div class="trade-item">
                 <div class="trade-date">{t['date']}</div>
-                <div class="trade-etfs">
-                    <span class="trade-in">买入 {t['name']}</span>
-                </div>
+                <div class="trade-etfs"><span class="trade-in">买入 {t['name']}</span></div>
                 <div class="trade-price">{t['price']:.4f}<br><small>{t['quantity']:,}股</small></div>
-            </div>""")
-        trade_list_html = '\n'.join(trade_items)
+            </div>"""
+        if len(trades) > 1:
+            more_trades = ''.join([f"""            <div class="trade-item" style="border-bottom:1px solid #f0f3fa;padding:14px 0;">
+                <div class="trade-date">{t['date']}</div>
+                <div class="trade-etfs"><span class="trade-in">买入 {t['name']}</span></div>
+                <div class="trade-price">{t['price']:.4f}<br><small>{t['quantity']:,}股</small></div>
+            </div>""" for t in trades[:-1][::-1]])
+            trade_list_html += f"""
+            <div class="hidden-trades" id="more-trades">
+{more_trades}
+            </div>
+            <button class="show-more" onclick="toggleTrades(this)">查看更多记录 ▼</button>"""
     else:
         trade_list_html = '            <div class="trade-item"><div style="text-align:center;width:100%;color:#787b86;font-size:13px;">暂无交易记录</div></div>'
 
-    html = f"""<!DOCTYPE html>
+    html = f"""
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -471,287 +486,90 @@ def generate_html(factors, trade_date, next_date, update_time, position=None, tr
     <title>ETF轮动策略监控</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: #fff;
-            padding: 24px;
-            color: #131722;
-            line-height: 1.5;
-        }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #fff; padding: 24px; color: #131722; line-height: 1.5; }}
         .container {{ max-width: 720px; margin: 0 auto; }}
-
-        /* 头部 */
-        .header {{
-            border-bottom: 1px solid #e0e3eb;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }}
-        .header h1 {{
-            font-size: 20px;
-            font-weight: 600;
-            color: #131722;
-            margin-bottom: 4px;
-        }}
-        .header-meta {{
-            font-size: 13px;
-            color: #787b86;
-        }}
-        .header-time {{
-            font-size: 13px;
-            color: #2962ff;
-            font-weight: 500;
-            margin-top: 4px;
-        }}
-
-        /* 区块标题 */
-        .section-title {{
-            font-size: 14px;
-            font-weight: 600;
-            color: #131722;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }}
-
-        /* 涨跌幅颜色 - 红涨绿跌（A股习惯）*/
-        .change-up {{ color: #ff5252; }}
-        .change-down {{ color: #00c853; }}
+        .header {{ border-bottom: 1px solid #e0e3eb; padding-bottom: 16px; margin-bottom: 24px; }}
+        .strategy-badge {{ display: inline-flex; align-items: center; gap: 6px; background: #e3f2fd; color: #1976d2; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px; margin-bottom: 8px; }}
+        .strategy-stats {{ font-size: 11px; color: #b7b9c3; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f3fa; }}
+        .header-meta {{ font-size: 13px; color: #787b86; margin-top: 4px; }}
+        .header-time {{ font-size: 13px; color: #2962ff; font-weight: 500; margin-top: 4px; }}
+        .section-title {{ font-size: 14px; font-weight: 600; color: #131722; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }}
+        .change-up {{ color: #ff5252; }} .change-down {{ color: #00c853; }}
         .change-col {{ text-align: right; font-size: 13px; }}
-
-        /* 排名表格 */
-        .rank-table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }}
-        .rank-table th {{
-            text-align: left;
-            padding: 10px 8px;
-            border-bottom: 1px solid #e0e3eb;
-            font-size: 12px;
-            font-weight: 400;
-            color: #787b86;
-        }}
-        .rank-table td {{
-            padding: 14px 8px;
-            border-bottom: 1px solid #f0f3fa;
-            font-size: 14px;
-        }}
+        .rank-table {{ width: 100%; border-collapse: collapse; margin-bottom: 24px; }}
+        .rank-table th {{ text-align: left; padding: 10px 8px; border-bottom: 1px solid #e0e3eb; font-size: 12px; font-weight: 400; color: #787b86; }}
+        .rank-table td {{ padding: 14px 8px; border-bottom: 1px solid #f0f3fa; font-size: 14px; }}
         .rank-table tr:hover {{ background: #f8f9fd; }}
-        .rank-num {{
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #fff;
-        }}
-        .rank-1 {{ background: #2962ff; }}
-        .rank-2 {{ background: #00c853; }}
-        .rank-3 {{ background: #787b86; }}
-        .rank-4 {{ background: #b7b9c3; }}
-        .etf-name {{ font-weight: 500; }}
-        .etf-code {{
-            font-size: 12px;
-            color: #787b86;
-            margin-left: 4px;
-        }}
-        .score {{
-            font-weight: 600;
-            font-size: 15px;
-        }}
-        .score-positive {{ color: #00c853; }}
-        .score-negative {{ color: #ff5252; }}
-
-        /* 信号卡片 */
-        .signal-card {{
-            border: 1px solid #e0e3eb;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-        }}
-        .signal-label {{
-            font-size: 12px;
-            color: #787b86;
-            margin-bottom: 8px;
-        }}
-        .signal-action {{
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }}
-        .signal-buy {{ color: #00c853; }}
-        .signal-hold {{ color: #ff9800; }}
-        .signal-sell {{ color: #ff5252; }}
-        .signal-detail {{
-            font-size: 13px;
-            color: #787b86;
-            line-height: 1.6;
-        }}
-
-        /* 持仓卡片 */
-        .holding-card {{
-            border: 1px solid #e0e3eb;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }}
-        .holding-label {{
-            font-size: 12px;
-            color: #787b86;
-            margin-bottom: 4px;
-        }}
-        .holding-name {{
-            font-size: 18px;
-            font-weight: 600;
-            color: #131722;
-        }}
-        .holding-code {{
-            font-size: 13px;
-            color: #787b86;
-        }}
-        .holding-pnl {{
-            text-align: right;
-        }}
-        .pnl-value {{
-            font-size: 24px;
-            font-weight: 700;
-        }}
-        .pnl-up {{ color: #00c853; }}
-        .pnl-down {{ color: #ff5252; }}
-        .pnl-flat {{ color: #787b86; }}
-
-        /* 统计网格 */
-        .stats-row {{
-            display: flex;
-            justify-content: space-between;
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f3fa;
-        }}
-        .stat-item:last-child {{ text-align: right; }}
-        .stat-value {{
-            font-size: 20px;
-            font-weight: 700;
-            color: #131722;
-        }}
-        .stat-label {{
-            font-size: 12px;
-            color: #787b86;
-            margin-top: 2px;
-        }}
-
-        /* 交易记录 */
-        .trade-list {{
-            border: 1px solid #e0e3eb;
-            border-radius: 4px;
-            overflow: hidden;
-        }}
-        .trade-item {{
-            display: flex;
-            justify-content: space-between;
-            padding: 14px 16px;
-            border-bottom: 1px solid #f0f3fa;
-            font-size: 14px;
-        }}
+        .rank-num {{ display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #fff; }}
+        .rank-1 {{ background: #2962ff; }} .rank-2 {{ background: #00c853; }} .rank-3 {{ background: #787b86; }} .rank-4 {{ background: #b7b9c3; }}
+        .etf-name {{ font-weight: 500; }} .etf-code {{ font-size: 12px; color: #787b86; margin-left: 4px; }}
+        .score {{ font-weight: 600; font-size: 15px; }} .score-positive {{ color: #00c853; }} .score-negative {{ color: #ff5252; }}
+        .signal-card {{ border: 1px solid #e0e3eb; border-radius: 4px; padding: 20px; margin-bottom: 24px; text-align: center; }}
+        .signal-label {{ font-size: 12px; color: #787b86; margin-bottom: 8px; }}
+        .signal-action {{ font-size: 28px; font-weight: 700; margin-bottom: 8px; }}
+        .signal-buy {{ color: #00c853; }} .signal-hold {{ color: #ff9800; }} .signal-sell {{ color: #ff5252; }}
+        .signal-detail {{ font-size: 13px; color: #787b86; line-height: 1.6; }}
+        .calc-box {{ background: #f8f9fd; border-radius: 4px; padding: 12px 16px; margin-top: 16px; text-align: left; font-size: 12px; color: #787b86; }}
+        .calc-box .calc-row {{ display: flex; justify-content: space-between; margin-bottom: 4px; }}
+        .calc-box .calc-row:last-child {{ margin-bottom: 0; padding-top: 8px; margin-top: 8px; border-top: 1px dashed #e0e3eb; font-weight: 500; color: #131722; }}
+        .holding-card {{ border: 1px solid #e0e3eb; border-radius: 4px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }}
+        .holding-label {{ font-size: 12px; color: #787b86; margin-bottom: 4px; }}
+        .holding-name {{ font-size: 18px; font-weight: 600; color: #131722; }}
+        .holding-code {{ font-size: 13px; color: #787b86; }}
+        .holding-pnl {{ text-align: right; }}
+        .pnl-value {{ font-size: 24px; font-weight: 700; }} .pnl-up {{ color: #00c853; }} .pnl-down {{ color: #ff5252; }} .pnl-flat {{ color: #787b86; }}
+        .trade-list {{ border: 1px solid #e0e3eb; border-radius: 4px; overflow: hidden; }}
+        .trade-item {{ display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f3fa; font-size: 14px; }}
         .trade-item:last-child {{ border-bottom: none; }}
-        .trade-date {{ color: #787b86; font-size: 13px; }}
+        .trade-date {{ color: #787b86; font-size: 13px; min-width: 80px; }}
         .trade-etfs {{ flex: 1; padding: 0 16px; }}
-        .trade-out {{ color: #ff5252; }}
         .trade-in {{ color: #00c853; }}
-        .trade-arrow {{ color: #787b86; margin: 0 8px; }}
         .trade-price {{ text-align: right; color: #787b86; font-size: 13px; }}
-
-        /* 底部信息 */
-        .footer {{
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #e0e3eb;
-            text-align: center;
-            font-size: 12px;
-            color: #787b86;
-        }}
+        .show-more {{ display: block; width: 100%; padding: 12px; text-align: center; font-size: 13px; color: #787b86; background: transparent; border: none; cursor: pointer; }}
+        .show-more:hover {{ color: #2962ff; }}
+        .hidden-trades {{ display: none; }} .hidden-trades.show {{ display: block; }}
+        .footer {{ margin-top: 24px; padding-top: 16px; border-top: 1px solid #e0e3eb; text-align: center; font-size: 12px; color: #787b86; }}
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 头部 -->
         <div class="header">
-            <h1>ETF轮动策略</h1>
+            <div class="strategy-badge">周五盘后打分|下周一收盘前10分钟买卖|1.5倍阈值</div>
+            <div class="strategy-stats">回测: 16.36x | 47.50% | -26.65%回撤 | 夏普1.57 | 99次 | 54.1%</div>
             <div class="header-meta">评估日期: {trade_date} | 下次: {next_date}</div>
             <div class="header-time">数据更新: {update_time}</div>
         </div>
-
-        <!-- 本周评分排名 -->
+        <div class="section-title">当前持仓</div>
+{holding_html}
         <div class="section-title">本周评分排名</div>
         <table class="rank-table">
             <thead>
-                <tr>
-                    <th style="width:50px">排名</th>
-                    <th>ETF</th>
-                    <th style="width:90px;text-align:right">周涨跌</th>
-                    <th style="width:90px;text-align:right">得分</th>
-                </tr>
+                <tr><th style="width:50px">排名</th><th>ETF</th><th style="width:90px;text-align:right">周涨跌</th><th style="width:90px;text-align:right">得分</th></tr>
             </thead>
             <tbody>
 {rank_table_body}
             </tbody>
         </table>
-
-        <!-- 交易建议 -->
         <div class="section-title">交易建议</div>
         <div class="signal-card">
             <div class="signal-label">SIGNAL</div>
             <div class="signal-action {signal_action}">{signal_text}</div>
-            <div class="signal-detail">
-                {signal_detail}
-            </div>
+            <div class="signal-detail">{signal_detail}</div>
+{calc_html}
         </div>
-
-        <!-- 当前持仓 -->
-        <div class="section-title">当前持仓</div>
-{holding_html}
-
-        <!-- 策略表现 -->
-        <div class="section-title">策略表现 (2019-2026)</div>
-        <div class="stats-row">
-            <div class="stat-item">
-                <div class="stat-value">17.2x</div>
-                <div class="stat-label">7年净值</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">48.6%</div>
-                <div class="stat-label">年化收益</div>
-            </div>
-        </div>
-        <div class="stats-row">
-            <div class="stat-item">
-                <div class="stat-value">-25.4%</div>
-                <div class="stat-label">最大回撤</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">99</div>
-                <div class="stat-label">交易次数</div>
-            </div>
-        </div>
-
-        <!-- 交易记录 -->
         <div class="section-title">交易记录</div>
         <div class="trade-list">
 {trade_list_html}
         </div>
-
-        <!-- 底部 -->
-        <div class="footer">
-            ETF轮动策略 · 三因子动量模型 · 周度评估
-        </div>
+        <div class="footer">ETF轮动策略 · 三因子动量模型 · 周五排名/周一收盘执行</div>
     </div>
+    <script>
+        function toggleTrades(btn) {{
+            const content = document.getElementById('more-trades');
+            content.classList.toggle('show');
+            btn.textContent = content.classList.contains('show') ? '收起记录 ▲' : '查看更多记录 ▼';
+        }}
+    </script>
 </body>
 </html>"""
     return html
