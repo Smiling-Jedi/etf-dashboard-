@@ -8,8 +8,8 @@
     "code": "159949",
     "name": "创业板50ETF",
     "total_shares": 60000,
-    "avg_cost": 1.5430,
-    "total_cost": 92580.00,
+    "avg_cost": 1.5394,
+    "total_cost": 92366.00,
     "total_fees": 27.71,
     "first_buy_date": "2026-03-27",
     "last_buy_date": "2026-03-30",
@@ -27,8 +27,8 @@
       "date": "2026-03-30",
       "code": "159949",
       "total_shares": 60000,
-      "avg_cost": 1.5430,
-      "total_cost": 92580.00
+      "avg_cost": 1.5394,
+      "total_cost": 92366.00
     }
   ]
 }
