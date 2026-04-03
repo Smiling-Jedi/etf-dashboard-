@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "created_at": "2026-04-03",
+    "last_updated": "2026-04-03"
+  },
+  "initial_capital": 100000,
+  "current_capital": 100000,
+  "total_invested": 92580.00,
+  "cash_balance": 7412.29,
+  "capital_changes": [
+    {
+      "date": "2026-03-27",
+      "amount": 100000,
+      "type": "initial",
+      "note": "初始资金"
+    }
+  ],
+  "notes": "如追加资金，在此添加记录"
+}

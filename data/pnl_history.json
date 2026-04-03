@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "created_at": "2026-04-03",
+    "last_updated": "2026-04-03",
+    "base_date": "2026-03-27"
+  },
+  "summary": {
+    "total_invested": 92580.00,
+    "current_value": 89220.00,
+    "total_pnl": -3360.00,
+    "total_pnl_pct": -3.63,
+    "weekly_pnl": -3360.00,
+    "weekly_pnl_pct": -3.63,
+    "max_drawdown": -3.63,
+    "max_drawdown_date": "2026-04-03"
+  },
+  "daily_values": [
+    {
+      "date": "2026-03-27",
+      "code": "159949",
+      "shares": 30000,
+      "avg_cost": 1.5460,
+      "close_price": 1.5460,
+      "market_value": 46380.00,
+      "cash": 53620.00,
+      "total_value": 100000.00,
+      "daily_pnl": 0.00,
+      "daily_pnl_pct": 0.00,
+      "total_pnl": 0.00,
+      "total_pnl_pct": 0.00
+    },
+    {
+      "date": "2026-03-30",
+      "code": "159949",
+      "shares": 60000,
+      "avg_cost": 1.5430,
+      "close_price": 1.5430,
+      "market_value": 92580.00,
+      "cash": 7412.29,
+      "total_value": 99992.29,
+      "daily_pnl": -7.71,
+      "daily_pnl_pct": -0.01,
+      "total_pnl": -7.71,
+      "total_pnl_pct": -0.01
+    },
+    {
+      "date": "2026-04-03",
+      "code": "159949",
+      "shares": 60000,
+      "avg_cost": 1.5430,
+      "close_price": 1.4870,
+      "market_value": 89220.00,
+      "cash": 7412.29,
+      "total_value": 96632.29,
+      "daily_pnl": -3360.00,
+      "daily_pnl_pct": -3.62,
+      "total_pnl": -3367.71,
+      "total_pnl_pct": -3.37
+    }
+  ],
+  "monthly_summary": [],
+  "yearly_summary": []
+}
