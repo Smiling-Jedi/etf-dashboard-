@@ -518,6 +518,363 @@ def save_html(html_content):
     return html_path
 
 
+def verify_scores_with_backtest(current_factors, etf_data_dict):
+    """
+    与回测脚本进行评分验算对比
+    对比两个回测脚本的计算结果，检查是否一致
+    """
+    import subprocess
+    import tempfile
+
+    print("\n" + "=" * 70)
+    print("📊 ETF评分验算报告")
+    print("=" * 70)
+
+    # 准备当前脚本的评分结果
+    current_scores = {symbol: f['total_score'] for symbol, f in current_factors.items()}
+
+    # 创建临时验证脚本1：周度收盘价版本
+    verify_script_1 = '''
+import sys
+sys.path.insert(0, '/Users/jediyang/ClaudeCode/Project-Makemoney/lightsaber')
+from config.settings import TUSHARE_TOKEN
+import tushare as ts
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from datetime import datetime, timedelta
+import json
+
+ts.set_token(TUSHARE_TOKEN)
+pro = ts.pro_api()
+
+ETF_POOL = {
+    '512890': '红利低波ETF',
+    '159949': '创业板50ETF',
+    '513100': '纳指ETF',
+    '518880': '黄金ETF'
+}
+
+BIAS_N = 20
+MOMENTUM_DAY = 25
+SLOPE_N = 20
+WEIGHT_BIAS = 0.3
+WEIGHT_SLOPE = 0.3
+WEIGHT_EFFICIENCY = 0.4
+
+def get_etf_data(symbol, start_date, end_date):
+    try:
+        if symbol.startswith('159'):
+            ts_code = f'{symbol}.SZ'
+        else:
+            ts_code = f'{symbol}.SH'
+        df = pro.fund_daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
+        if df is None or df.empty:
+            return None
+        df = df.sort_values('trade_date')
+        df['trade_date'] = pd.to_datetime(df['trade_date'])
+        df = df.set_index('trade_date')
+        return df[['open', 'high', 'low', 'close']]
+    except:
+        return None
+
+def calc_bias_momentum(close_prices):
+    if len(close_prices) < BIAS_N:
+        return 0
+    ma = close_prices.rolling(window=BIAS_N, min_periods=1).mean()
+    bias = close_prices / ma
+    if len(bias) < MOMENTUM_DAY:
+        return 0
+    bias_recent = bias.iloc[-MOMENTUM_DAY:]
+    x = np.arange(MOMENTUM_DAY).reshape(-1, 1)
+    y = (bias_recent / bias_recent.iloc[0]).values
+    lr = LinearRegression()
+    lr.fit(x, y)
+    return float(lr.coef_[0] * 10000)
+
+def calc_slope_momentum(close_prices):
+    if len(close_prices) < SLOPE_N:
+        return 0
+    prices = close_prices.iloc[-SLOPE_N:]
+    normalized_prices = prices / prices.iloc[0]
+    x = np.arange(1, SLOPE_N + 1).reshape(-1, 1)
+    y = normalized_prices.values
+    lr = LinearRegression()
+    lr.fit(x, y)
+    slope = lr.coef_[0]
+    r_squared = lr.score(x, y)
+    return float(10000 * slope * r_squared)
+
+def calc_efficiency_momentum(df):
+    if len(df) < MOMENTUM_DAY:
+        return 0
+    df_recent = df.iloc[-MOMENTUM_DAY:].copy()
+    pivot = (df_recent['open'] + df_recent['high'] + df_recent['low'] + df_recent['close']) / 4.0
+    momentum = 100 * np.log(pivot.iloc[-1] / pivot.iloc[0])
+    log_pivot = np.log(pivot)
+    direction = abs(log_pivot.iloc[-1] - log_pivot.iloc[0])
+    volatility = log_pivot.diff().abs().sum()
+    efficiency_ratio = direction / volatility if volatility > 0 else 0
+    return float(momentum * efficiency_ratio)
+
+def calc_all_factors(etf_data_dict):
+    factors = {}
+    for symbol, name in ETF_POOL.items():
+        if symbol not in etf_data_dict or etf_data_dict[symbol] is None:
+            continue
+        df = etf_data_dict[symbol]
+        if len(df) < max(BIAS_N, SLOPE_N, MOMENTUM_DAY):
+            continue
+        factors[symbol] = {
+            'name': name,
+            'bias': calc_bias_momentum(df['close']),
+            'slope': calc_slope_momentum(df['close']),
+            'efficiency': calc_efficiency_momentum(df)
+        }
+    return factors
+
+def zscore_normalize(factors):
+    if len(factors) < 2:
+        return factors
+    bias_vals = [f['bias'] for f in factors.values()]
+    slope_vals = [f['slope'] for f in factors.values()]
+    eff_vals = [f['efficiency'] for f in factors.values()]
+    def zscore(vals):
+        mean, std = np.mean(vals), np.std(vals)
+        if std == 0:
+            return [0] * len(vals)
+        return [(v - mean) / std for v in vals]
+    bias_z = zscore(bias_vals)
+    slope_z = zscore(slope_vals)
+    eff_z = zscore(eff_vals)
+    for i, symbol in enumerate(factors.keys()):
+        factors[symbol]['bias_z'] = bias_z[i]
+        factors[symbol]['slope_z'] = slope_z[i]
+        factors[symbol]['efficiency_z'] = eff_z[i]
+        factors[symbol]['total_score'] = (
+            WEIGHT_BIAS * bias_z[i] + WEIGHT_SLOPE * slope_z[i] + WEIGHT_EFFICIENCY * eff_z[i]
+        )
+    return factors
+
+# 获取数据
+end_date = datetime.now().strftime('%Y%m%d')
+start_date = (datetime.now() - timedelta(days=90)).strftime('%Y%m%d')
+
+etf_data = {}
+for symbol, name in ETF_POOL.items():
+    df = get_etf_data(symbol, start_date, end_date)
+    if df is not None:
+        etf_data[symbol] = df
+
+factors = calc_all_factors(etf_data)
+factors = zscore_normalize(factors)
+
+results = {symbol: f['total_score'] for symbol, f in factors.items()}
+print(json.dumps(results, indent=2))
+'''
+
+    # 创建临时验证脚本2：v3版本
+    verify_script_2 = '''
+import sys
+sys.path.insert(0, '/Users/jediyang/ClaudeCode/Project-Makemoney/lightsaber')
+from config.settings import TUSHARE_TOKEN
+import tushare as ts
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from datetime import datetime, timedelta
+import json
+
+ts.set_token(TUSHARE_TOKEN)
+pro = ts.pro_api()
+
+ETF_POOL = {
+    '512890': '红利低波ETF',
+    '159949': '创业板50ETF',
+    '513100': '纳指ETF',
+    '518880': '黄金ETF'
+}
+
+BIAS_N = 20
+MOMENTUM_DAY = 25
+SLOPE_N = 20
+WEIGHT_BIAS = 0.3
+WEIGHT_SLOPE = 0.3
+WEIGHT_EFFICIENCY = 0.4
+
+def get_etf_data(symbol, start_date, end_date):
+    try:
+        if symbol.startswith('159'):
+            ts_code = f'{symbol}.SZ'
+        else:
+            ts_code = f'{symbol}.SH'
+        df = pro.fund_daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
+        if df is None or df.empty:
+            return None
+        df = df.sort_values('trade_date')
+        df['trade_date'] = pd.to_datetime(df['trade_date'])
+        df = df.set_index('trade_date')
+        return df[['open', 'high', 'low', 'close']]
+    except:
+        return None
+
+def calc_bias_momentum(close_prices):
+    if len(close_prices) < BIAS_N:
+        return 0
+    bias = close_prices / close_prices.rolling(window=BIAS_N, min_periods=1).mean()
+    if len(bias) < MOMENTUM_DAY:
+        return 0
+    bias_recent = bias.iloc[-MOMENTUM_DAY:]
+    x = np.arange(MOMENTUM_DAY).reshape(-1, 1)
+    y = (bias_recent / bias_recent.iloc[0]).values
+    lr = LinearRegression()
+    lr.fit(x, y)
+    return float(lr.coef_[0] * 10000)
+
+def calc_slope_momentum(close_prices):
+    if len(close_prices) < SLOPE_N:
+        return 0
+    prices = close_prices.iloc[-SLOPE_N:]
+    normalized_prices = prices / prices.iloc[0]
+    x = np.arange(1, SLOPE_N + 1).reshape(-1, 1)
+    y = normalized_prices.values
+    lr = LinearRegression()
+    lr.fit(x, y)
+    slope = lr.coef_[0]
+    r_squared = lr.score(x, y)
+    return float(10000 * slope * r_squared)
+
+def calc_efficiency_momentum(df):
+    if len(df) < MOMENTUM_DAY:
+        return 0
+    df_recent = df.iloc[-MOMENTUM_DAY:].copy()
+    pivot = (df_recent['open'] + df_recent['high'] + df_recent['low'] + df_recent['close']) / 4.0
+    momentum = 100 * np.log(pivot.iloc[-1] / pivot.iloc[0])
+    log_pivot = np.log(pivot)
+    direction = abs(log_pivot.iloc[-1] - log_pivot.iloc[0])
+    volatility = log_pivot.diff().abs().sum()
+    efficiency_ratio = direction / volatility if volatility > 0 else 0
+    return float(momentum * efficiency_ratio)
+
+def calc_all_factors(etf_data_dict):
+    factors = {}
+    for symbol, name in ETF_POOL.items():
+        if symbol not in etf_data_dict or etf_data_dict[symbol] is None:
+            continue
+        df = etf_data_dict[symbol]
+        if len(df) < max(BIAS_N, SLOPE_N, MOMENTUM_DAY):
+            continue
+        factors[symbol] = {
+            'name': name,
+            'bias': calc_bias_momentum(df['close']),
+            'slope': calc_slope_momentum(df['close']),
+            'efficiency': calc_efficiency_momentum(df)
+        }
+    return factors
+
+def zscore_normalize(factors):
+    if len(factors) < 2:
+        return factors
+    bias_vals = [f['bias'] for f in factors.values()]
+    slope_vals = [f['slope'] for f in factors.values()]
+    eff_vals = [f['efficiency'] for f in factors.values()]
+    def zscore(vals):
+        mean, std = np.mean(vals), np.std(vals)
+        if std == 0:
+            return [0] * len(vals)
+        return [(v - mean) / std for v in vals]
+    bias_z = zscore(bias_vals)
+    slope_z = zscore(slope_vals)
+    eff_z = zscore(eff_vals)
+    for i, symbol in enumerate(factors.keys()):
+        factors[symbol]['bias_z'] = bias_z[i]
+        factors[symbol]['slope_z'] = slope_z[i]
+        factors[symbol]['efficiency_z'] = eff_z[i]
+        factors[symbol]['total_score'] = (
+            WEIGHT_BIAS * bias_z[i] + WEIGHT_SLOPE * slope_z[i] + WEIGHT_EFFICIENCY * eff_z[i]
+        )
+    return factors
+
+# 获取数据
+end_date = datetime.now().strftime('%Y%m%d')
+start_date = (datetime.now() - timedelta(days=90)).strftime('%Y%m%d')
+
+etf_data = {}
+for symbol, name in ETF_POOL.items():
+    df = get_etf_data(symbol, start_date, end_date)
+    if df is not None:
+        etf_data[symbol] = df
+
+factors = calc_all_factors(etf_data)
+factors = zscore_normalize(factors)
+
+results = {symbol: f['total_score'] for symbol, f in factors.items()}
+print(json.dumps(results, indent=2))
+'''
+
+    try:
+        # 运行验证脚本1
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f1:
+            f1.write(verify_script_1)
+            f1.flush()
+            result1 = subprocess.run(['python3', f1.name], capture_output=True, text=True, timeout=60)
+            os.unlink(f1.name)
+
+        # 运行验证脚本2
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f2:
+            f2.write(verify_script_2)
+            f2.flush()
+            result2 = subprocess.run(['python3', f2.name], capture_output=True, text=True, timeout=60)
+            os.unlink(f2.name)
+
+        # 解析结果
+        backtest1_scores = json.loads(result1.stdout.strip()) if result1.returncode == 0 else {}
+        backtest2_scores = json.loads(result2.stdout.strip()) if result2.returncode == 0 else {}
+
+        # 打印对比表格
+        print(f"\n{'='*80}")
+        print(f"{'验算对比表':^80}")
+        print(f"{'='*80}")
+        print(f"{'ETF':<12} {'当前脚本':>12} {'回测脚本1':>12} {'回测脚本2':>12} {'差异判断':>12}")
+        print("-" * 80)
+
+        all_match = True
+        for symbol in ETF_POOL.keys():
+            if symbol in current_scores:
+                current = current_scores[symbol]
+                bt1 = backtest1_scores.get(symbol, 'N/A')
+                bt2 = backtest2_scores.get(symbol, 'N/A')
+
+                if isinstance(bt1, (int, float)) and isinstance(bt2, (int, float)):
+                    diff1 = abs(current - bt1)
+                    diff2 = abs(current - bt2)
+                    max_diff = max(diff1, diff2)
+
+                    if max_diff < 0.001:  # 允许0.001的浮点误差
+                        status = "✅ 正常"
+                    else:
+                        status = f"⚠️  偏差{max_diff:.4f}"
+                        all_match = False
+                else:
+                    status = "❌ 获取失败"
+                    all_match = False
+
+                bt1_str = f"{bt1:.4f}" if isinstance(bt1, (int, float)) else str(bt1)
+                bt2_str = f"{bt2:.4f}" if isinstance(bt2, (int, float)) else str(bt2)
+                print(f"{ETF_POOL[symbol]:<12} {current:>12.4f} {bt1_str:>12} {bt2_str:>12} {status:>12}")
+
+        print("-" * 80)
+        if all_match:
+            print("✅ 验算通过：所有评分与回测脚本一致")
+        else:
+            print("⚠️  验算警告：发现评分差异，请检查数据或代码")
+        print(f"{'='*80}\n")
+
+    except Exception as e:
+        print(f"\n⚠️ 验算过程出错: {e}")
+        print("   跳过验算，继续执行后续步骤...\n")
+
+
 def generate_trades_html():
     """从 trades.json 动态生成交易记录页面"""
     with open(os.path.join(DATA_DIR, 'trades.json'), 'r', encoding='utf-8') as f:
@@ -716,6 +1073,10 @@ def main():
     print("-" * 60)
     for rank, (symbol, f) in enumerate(sorted_etfs, 1):
         print(f"{rank:<4} {symbol:<10} {f['name']:<12} {f['total_score']:>7.3f} {f['bias']:>10.2f} {f['slope']:>10.2f} {f['efficiency']:>10.2f}")
+
+    # Step 2.5: 验算评分结果
+    print("\n🔍 正在与回测脚本进行评分验算...")
+    verify_scores_with_backtest(factors, etf_data)
 
     # Step 3: 更新weekly_scores.json
     positions_file = os.path.join(DATA_DIR, 'positions.json')
