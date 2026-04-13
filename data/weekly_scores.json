@@ -56,36 +56,36 @@
           "rank": 1,
           "code": "513100",
           "name": "纳指ETF",
-          "score": 0.7771553549194641,
-          "weekly_change": 0.2216066481994572
+          "score": 0.8610174815335723,
+          "weekly_change": -0.6080707573244859
         },
         {
           "rank": 2,
           "code": "159949",
           "name": "创业板50ETF",
-          "score": 0.758933130665208,
-          "weekly_change": 4.071246819338414
+          "score": 0.7625919076402009,
+          "weekly_change": 1.1002444987775029
         },
         {
           "rank": 3,
           "code": "512890",
           "name": "红利低波ETF",
-          "score": -0.1864547436381927,
-          "weekly_change": -0.16906170752324368
+          "score": -0.7863762906881282,
+          "weekly_change": -0.42337002540221436
         },
         {
           "rank": 4,
           "code": "518880",
           "name": "黄金ETF",
-          "score": -1.3496337419464792,
-          "weekly_change": 0.6459426725878181
+          "score": -0.8372330984856451,
+          "weekly_change": -0.48134777376654947
         }
       ],
       "holding_code": "159949",
-      "holding_score": 0.758933130665208,
+      "holding_score": 0.7625919076402009,
       "top_code": "513100",
-      "top_score": 0.7771553549194641,
-      "threshold": 1.138399695997812,
+      "top_score": 0.8610174815335723,
+      "threshold": 1.1438878614603014,
       "should_trade": false,
       "signal": "HOLD",
       "action": "继续持有 创业板50ETF，下周一无操作"
