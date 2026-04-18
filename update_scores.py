@@ -217,6 +217,7 @@ def update_weekly_scores(factors, sorted_etfs, positions_file):
     if current_holding and current_holding == top_code:
         should_trade = False
         signal = f"继续持有 {ETF_POOL.get(current_holding, current_holding)}"
+        threshold = holding_score * SWITCH_THRESHOLD if holding_score > 0 else 0
     else:
         threshold = holding_score * SWITCH_THRESHOLD if holding_score > 0 else 0
         if holding_score <= 0:
@@ -488,6 +489,8 @@ def generate_html(etf_data=None):
 {rank_table}
             </tbody>
         </table>
+
+        <div style="text-align:center;margin:12px 0 20px;font-size:13px;"><a href="history.html" style="color:#2962ff;text-decoration:none;">每周记录 →</a></div>
 
         <div class="section-title">交易建议</div>
         <div class="signal-card">
@@ -1016,6 +1019,174 @@ def generate_trades_html():
     print(f"✅ 交易记录页面已生成: {output_file}")
 
 
+def generate_history_html():
+    """从历史数据生成每周记录页面"""
+    with open(os.path.join(DATA_DIR, 'weekly_scores.json'), 'r', encoding='utf-8') as f:
+        weekly = json.load(f)
+    with open(os.path.join(DATA_DIR, 'trades.json'), 'r', encoding='utf-8') as f:
+        trades = json.load(f)
+    with open(os.path.join(DATA_DIR, 'positions.json'), 'r', encoding='utf-8') as f:
+        positions = json.load(f)
+
+    scores_list = weekly.get('scores', [])
+    trade_list = trades.get('trades', [])
+    current_pos = positions.get('current', {})
+
+    # 统计每只ETF第1名的次数和实际交易次数
+    first_place_counts = {code: 0 for code in ETF_POOL}
+    trade_counts = {code: 0 for code in ETF_POOL}
+
+    for week in scores_list:
+        rankings = week.get('rankings', [])
+        if rankings:
+            top_code = rankings[0].get('code')
+            if top_code in first_place_counts:
+                first_place_counts[top_code] += 1
+
+    for t in trade_list:
+        code = t.get('code')
+        if code in trade_counts:
+            trade_counts[code] += 1
+
+    # 生成统计网格
+    dots = {'159949': 'dot-blue', '513100': 'dot-green', '512890': 'dot-gray', '518880': 'dot-light'}
+    stats_cells = []
+    for code, name in ETF_POOL.items():
+        stats_cells.append(f'''            <div class="stat-cell">
+                <span class="dot {dots[code]}"></span>
+                <div class="stat-text">
+                    <span class="name">{name.replace('ETF', '')}</span>
+                    <span class="value">{first_place_counts[code]}次第1 (交易{trade_counts[code]}次)</span>
+                </div>
+            </div>''')
+
+    # 生成每周卡片（倒序）
+    week_cards = []
+    for week in reversed(scores_list):
+        week_date = week.get('week_date', '')
+        # 格式化日期: 2026-04-17 -> 4月17日
+        try:
+            d = datetime.strptime(week_date, '%Y-%m-%d')
+            date_str = f"{d.month}月{d.day}日 · 周五"
+        except:
+            date_str = week_date
+
+        signal = week.get('signal', 'HOLD')
+        signal_class = 'signal-buy' if signal == 'BUY' else 'signal-hold'
+        holding_code = week.get('holding_code', '')
+
+        # 排名行
+        rank_rows = []
+        for r in week.get('rankings', []):
+            code = r.get('code', '')
+            is_holding = '持仓' if code == holding_code else ''
+            holding_tag = '<span class="holding-tag">持仓</span>' if is_holding else ''
+            score = r.get('score', 0)
+            score_class = 'score-pos' if score >= 0 else 'score-neg'
+            weekly_change = r.get('weekly_change', 0)
+            change_class = 'change-up' if weekly_change >= 0 else 'change-down'
+            change_str = f"+{weekly_change:.2f}%" if weekly_change >= 0 else f"{weekly_change:.2f}%"
+
+            rank_rows.append(f'''                <tr>
+                    <td>{r['rank']}</td>
+                    <td>
+                        <span class="etf-name">{r['name']}</span>
+                        <span class="etf-code">{code}</span>
+                        {holding_tag}
+                    </td>
+                    <td>
+                        <div class="rank-score {score_class}">{score:.3f}</div>
+                        <div class="rank-change {change_class}">{change_str}</div>
+                    </td>
+                </tr>''')
+
+        # 交易备注
+        # 查找本周是否有交易
+        week_trades = [t for t in trade_list if t.get('date', '') == week_date]
+        if week_trades:
+            trade_notes = []
+            for t in week_trades:
+                trade_notes.append(f"{t['action']} {t['name']} {t['shares']:,}股 @ {t['price']:.4f}")
+            trade_note = ' · '.join(trade_notes)
+        else:
+            holding_name = ETF_POOL.get(holding_code, holding_code) if holding_code else '无持仓'
+            trade_note = f"无交易 · 继续持有{holding_name}"
+
+        week_cards.append(f'''        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">{date_str}</div>
+                <div class="week-signal {signal_class}">{signal}</div>
+            </div>
+            <table class="rank-table">
+{chr(10).join(rank_rows)}
+            </table>
+            <div class="trade-note">{trade_note}</div>
+        </div>''')
+
+    html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每周记录 - ETF轮动策略</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f5f5; padding: 16px; color: #131722; line-height: 1.5; }}
+        .container {{ max-width: 720px; margin: 0 auto; }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e0e3eb; }}
+        .header h1 {{ font-size: 18px; font-weight: 600; }}
+        .back-link {{ color: #2962ff; text-decoration: none; font-size: 14px; }}
+        .stats-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }}
+        .stat-cell {{ background: #fff; border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; gap: 8px; }}
+        .stat-cell .dot {{ width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }}
+        .dot-blue {{ background: #2962ff; }} .dot-green {{ background: #00c853; }} .dot-gray {{ background: #787b86; }} .dot-light {{ background: #b7b9c3; }}
+        .stat-text {{ font-size: 13px; }}
+        .stat-text .name {{ color: #787b86; }}
+        .stat-text .value {{ font-weight: 600; color: #131722; }}
+        .week-card {{ background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; }}
+        .week-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }}
+        .week-date {{ font-size: 15px; font-weight: 600; }}
+        .week-signal {{ font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }}
+        .signal-hold {{ background: #fff3e0; color: #ff9800; }}
+        .signal-buy {{ background: #e8f5e9; color: #00c853; }}
+        .rank-table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
+        .rank-table td {{ padding: 8px 0; border-top: 1px solid #f0f3fa; }}
+        .rank-table tr:first-child td {{ border-top: none; }}
+        .rank-table td:first-child {{ width: 24px; color: #787b86; font-weight: 500; }}
+        .rank-table td:nth-child(2) {{ padding-left: 4px; }}
+        .rank-table td:last-child {{ text-align: right; }}
+        .etf-name {{ font-weight: 500; }}
+        .etf-code {{ color: #787b86; font-size: 11px; margin-left: 4px; }}
+        .holding-tag {{ font-size: 10px; color: #2962ff; background: #e8f0fe; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }}
+        .rank-score {{ font-weight: 600; }}
+        .score-pos {{ color: #00c853; }} .score-neg {{ color: #ff5252; }}
+        .rank-change {{ font-size: 11px; color: #787b86; }}
+        .change-up {{ color: #ff5252; }} .change-down {{ color: #00c853; }}
+        .trade-note {{ margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e0e3eb; font-size: 12px; color: #787b86; }}
+        .footer {{ margin-top: 20px; padding-top: 12px; border-top: 1px solid #e0e3eb; text-align: center; font-size: 11px; color: #787b86; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>每周记录</h1>
+            <a href="index.html" class="back-link">← 返回</a>
+        </div>
+        <div class="stats-grid">
+{chr(10).join(stats_cells)}
+        </div>
+{chr(10).join(week_cards)}
+        <div class="footer">ETF轮动策略 · 每周记录</div>
+    </div>
+</body>
+</html>'''
+
+    output_file = os.path.join(SCRIPT_DIR, 'history.html')
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f"✅ 每周记录页面已生成: {output_file}")
+
+
 def git_push():
     """Git提交和推送"""
     try:
@@ -1025,7 +1196,7 @@ def git_push():
             print("⚠️ 没有变更需要提交")
             return True
 
-        subprocess.run(['git', 'add', 'index.html', 'trades.html', 'data/'], check=True)
+        subprocess.run(['git', 'add', 'index.html', 'trades.html', 'history.html', 'data/'], check=True)
         today = datetime.now().strftime('%Y-%m-%d')
         subprocess.run(['git', 'commit', '-m', f'Update: {today} ETF data'], check=True)
         subprocess.run(['git', 'push', 'origin', 'main'], check=True)
@@ -1093,6 +1264,7 @@ def main():
     html = generate_html(etf_data)
     save_html(html)
     generate_trades_html()
+    generate_history_html()
 
     # Step 5: Git推送
     print("\n🚀 正在推送到GitHub...")
