@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每周记录 - ETF轮动策略</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f5f5f5; padding: 16px; color: #131722; line-height: 1.5; }
+        .container { max-width: 720px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e0e3eb; }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .back-link { color: #2962ff; text-decoration: none; font-size: 14px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .stat-cell { background: #fff; border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; gap: 8px; }
+        .stat-cell .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot-blue { background: #2962ff; } .dot-green { background: #00c853; } .dot-gray { background: #787b86; } .dot-light { background: #b7b9c3; }
+        .stat-text { font-size: 13px; }
+        .stat-text .name { color: #787b86; }
+        .stat-text .value { font-weight: 600; color: #131722; }
+        .week-card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .week-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .week-date { font-size: 15px; font-weight: 600; }
+        .week-signal { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }
+        .signal-hold { background: #fff3e0; color: #ff9800; }
+        .signal-buy { background: #e8f5e9; color: #00c853; }
+        .rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .rank-table td { padding: 8px 0; border-top: 1px solid #f0f3fa; }
+        .rank-table tr:first-child td { border-top: none; }
+        .rank-table td:first-child { width: 24px; color: #787b86; font-weight: 500; }
+        .rank-table td:nth-child(2) { padding-left: 4px; }
+        .rank-table td:last-child { text-align: right; }
+        .etf-name { font-weight: 500; }
+        .etf-code { color: #787b86; font-size: 11px; margin-left: 4px; }
+        .holding-tag { font-size: 10px; color: #2962ff; background: #e8f0fe; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+        .rank-score { font-weight: 600; }
+        .score-pos { color: #00c853; } .score-neg { color: #ff5252; }
+        .rank-change { font-size: 11px; color: #787b86; }
+        .change-up { color: #ff5252; } .change-down { color: #00c853; }
+        .trade-note { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e0e3eb; font-size: 12px; color: #787b86; }
+        .footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid #e0e3eb; text-align: center; font-size: 11px; color: #787b86; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>每周记录</h1>
+            <a href="index.html" class="back-link">← 返回</a>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-cell">
+                <span class="dot dot-gray"></span>
+                <div class="stat-text">
+                    <span class="name">红利低波</span>
+                    <span class="value">1次第1 (交易0次)</span>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <span class="dot dot-blue"></span>
+                <div class="stat-text">
+                    <span class="name">创业板50</span>
+                    <span class="value">1次第1 (交易4次)</span>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <span class="dot dot-green"></span>
+                <div class="stat-text">
+                    <span class="name">纳指</span>
+                    <span class="value">1次第1 (交易0次)</span>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <span class="dot dot-light"></span>
+                <div class="stat-text">
+                    <span class="name">黄金</span>
+                    <span class="value">0次第1 (交易0次)</span>
+                </div>
+            </div>
+        </div>
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">4月17日 · 周五</div>
+                <div class="week-signal signal-hold">HOLD</div>
+            </div>
+            <table class="rank-table">
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <span class="etf-name">创业板50ETF</span>
+                        <span class="etf-code">159949</span>
+                        <span class="holding-tag">持仓</span>
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.770</div>
+                        <div class="rank-change change-up">+1.67%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <span class="etf-name">纳指ETF</span>
+                        <span class="etf-code">513100</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.691</div>
+                        <div class="rank-change change-down">-0.79%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>
+                        <span class="etf-name">黄金ETF</span>
+                        <span class="etf-code">518880</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-neg">-0.253</div>
+                        <div class="rank-change change-down">-0.67%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>
+                        <span class="etf-name">红利低波ETF</span>
+                        <span class="etf-code">512890</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-neg">-1.208</div>
+                        <div class="rank-change change-down">-0.42%</div>
+                    </td>
+                </tr>
+            </table>
+            <div class="trade-note">无交易 · 继续持有创业板50ETF</div>
+        </div>
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">4月10日 · 周五</div>
+                <div class="week-signal signal-hold">HOLD</div>
+            </div>
+            <table class="rank-table">
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <span class="etf-name">纳指ETF</span>
+                        <span class="etf-code">513100</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.861</div>
+                        <div class="rank-change change-down">-0.61%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <span class="etf-name">创业板50ETF</span>
+                        <span class="etf-code">159949</span>
+                        <span class="holding-tag">持仓</span>
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.763</div>
+                        <div class="rank-change change-up">+1.10%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>
+                        <span class="etf-name">红利低波ETF</span>
+                        <span class="etf-code">512890</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-neg">-0.786</div>
+                        <div class="rank-change change-down">-0.42%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>
+                        <span class="etf-name">黄金ETF</span>
+                        <span class="etf-code">518880</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-neg">-0.837</div>
+                        <div class="rank-change change-down">-0.48%</div>
+                    </td>
+                </tr>
+            </table>
+            <div class="trade-note">无交易 · 继续持有创业板50ETF</div>
+        </div>
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">4月3日 · 周五</div>
+                <div class="week-signal signal-hold">HOLD</div>
+            </div>
+            <table class="rank-table">
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <span class="etf-name">红利低波ETF</span>
+                        <span class="etf-code">512890</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.664</div>
+                        <div class="rank-change change-up">+1.35%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <span class="etf-name">创业板50ETF</span>
+                        <span class="etf-code">159949</span>
+                        <span class="holding-tag">持仓</span>
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.625</div>
+                        <div class="rank-change change-down">-3.62%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>
+                        <span class="etf-name">纳指ETF</span>
+                        <span class="etf-code">513100</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-pos">0.412</div>
+                        <div class="rank-change change-up">+0.29%</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>
+                        <span class="etf-name">黄金ETF</span>
+                        <span class="etf-code">518880</span>
+                        
+                    </td>
+                    <td>
+                        <div class="rank-score score-neg">-1.700</div>
+                        <div class="rank-change change-up">+3.05%</div>
+                    </td>
+                </tr>
+            </table>
+            <div class="trade-note">无交易 · 继续持有创业板50ETF</div>
+        </div>
+        <div class="footer">ETF轮动策略 · 每周记录</div>
+    </div>
+</body>
+</html>
