@@ -1,42 +1,50 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-05-11",
+    "last_updated": "2026-06-08",
     "version": "1.0"
   },
   "current": {
     "code": "513100",
     "name": "纳指ETF",
-    "total_shares": 53400,
-    "avg_cost": 2.1060,
-    "total_cost": 112460.40,
+    "total_shares": 78400,
+    "avg_cost": 2.113,
+    "total_cost": 165652.4,
     "total_fees": 33.74,
-    "total_invested": 92933.73,
+    "total_invested": 146125.73,
     "first_buy_date": "2026-05-11",
-    "last_buy_date": "2026-05-11",
-    "holding_days": 1
+    "last_buy_date": "2026-06-08",
+    "holding_days": 28
   },
   "history": [
     {
       "date": "2026-03-27",
       "code": "159949",
       "total_shares": 30000,
-      "avg_cost": 1.5460,
-      "total_cost": 46380.00
+      "avg_cost": 1.546,
+      "total_cost": 46380.0
     },
     {
       "date": "2026-03-30",
       "code": "159949",
       "total_shares": 60000,
       "avg_cost": 1.5394,
-      "total_cost": 92366.00
+      "total_cost": 92366.0
     },
     {
       "date": "2026-05-11",
       "code": "513100",
       "total_shares": 53400,
-      "avg_cost": 2.1060,
-      "total_cost": 112460.40
+      "avg_cost": 2.106,
+      "total_cost": 112460.4
+    },
+    {
+      "date": "2026-06-08",
+      "code": "513100",
+      "total_shares": 78400,
+      "avg_cost": 2.113,
+      "total_cost": 165652.4,
+      "note": "资金扩容第1档，加仓25,000份"
     }
   ]
 }

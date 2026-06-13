@@ -1,7 +1,7 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-05-11",
+    "last_updated": "2026-06-08",
     "version": "1.0"
   },
   "trades": [
@@ -12,9 +12,9 @@
       "code": "159949",
       "name": "创业板50ETF",
       "action": "买入",
-      "price": 1.5320,
+      "price": 1.532,
       "shares": 15000,
-      "amount": 22980.00,
+      "amount": 22980.0,
       "fee": 6.89,
       "note": "策略建仓"
     },
@@ -25,9 +25,9 @@
       "code": "159949",
       "name": "创业板50ETF",
       "action": "买入",
-      "price": 1.5600,
+      "price": 1.56,
       "shares": 15000,
-      "amount": 23400.00,
+      "amount": 23400.0,
       "fee": 7.02,
       "note": "加仓"
     },
@@ -40,7 +40,7 @@
       "action": "买入",
       "price": 1.5278,
       "shares": 20000,
-      "amount": 30556.00,
+      "amount": 30556.0,
       "fee": 9.17,
       "note": "加仓"
     },
@@ -51,9 +51,9 @@
       "code": "159949",
       "name": "创业板50ETF",
       "action": "买入",
-      "price": 1.5430,
+      "price": 1.543,
       "shares": 10000,
-      "amount": 15430.00,
+      "amount": 15430.0,
       "fee": 4.63,
       "note": "加仓"
     },
@@ -64,9 +64,9 @@
       "code": "159949",
       "name": "创业板50ETF",
       "action": "卖出",
-      "price": 1.8660,
+      "price": 1.866,
       "shares": 60000,
-      "amount": 111960.00,
+      "amount": 111960.0,
       "fee": 33.59,
       "note": "调仓卖出"
     },
@@ -79,9 +79,22 @@
       "action": "买入",
       "price": 2.106,
       "shares": 53400,
-      "amount": 112460.40,
+      "amount": 112460.4,
       "fee": 33.74,
       "note": "调仓买入"
+    },
+    {
+      "id": "T007",
+      "date": "2026-06-08",
+      "time": "09:40:00",
+      "code": "513100",
+      "name": "纳指ETF",
+      "action": "买入",
+      "price": 2.1277,
+      "shares": 25000,
+      "amount": 53192.0,
+      "fee": 15.96,
+      "note": "资金扩容第1档"
     }
   ]
 }
