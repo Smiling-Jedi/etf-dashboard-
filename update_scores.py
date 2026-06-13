@@ -288,6 +288,90 @@ def update_weekly_scores(factors, sorted_etfs, positions_file):
     return week_data
 
 
+def calculate_cumulative_pnl(trade_list, current_cost, current_shares, latest_price):
+    """
+    从交易记录计算累积盈亏（FIFO 匹配已实现盈亏）。
+
+    返回 dict:
+      - realized_pnl: 已平仓盈亏（含手续费）
+      - unrealized_pnl: 当前持仓未实现盈亏
+      - total_pnl: 累积总盈亏
+      - net_external_capital: 净外部投入本金（分母）
+      - total_pnl_pct: 累积收益率
+      - current_market_value: 当前持仓市值
+    """
+    if not trade_list:
+        return {
+            'realized_pnl': 0, 'unrealized_pnl': 0, 'total_pnl': 0,
+            'net_external_capital': 0, 'total_pnl_pct': 0, 'current_market_value': 0
+        }
+
+    # 按日期+时间排序
+    sorted_trades = sorted(trade_list, key=lambda t: (t.get('date', ''), t.get('time', '')))
+
+    # 每只 ETF 的 FIFO 买入队列: [(剩余股数, 每股成本含费), ...]
+    buy_queues = {}
+    realized_pnl = 0.0
+    total_buy_with_fee = 0.0
+    total_sell_after_fee = 0.0
+
+    for t in sorted_trades:
+        code = t.get('code', '')
+        action = t.get('action', '')
+        shares = t.get('shares', 0)
+        amount = t.get('amount', 0)
+        fee = t.get('fee', 0)
+
+        if action == '买入':
+            cost_with_fee = amount + fee
+            cost_per_share = cost_with_fee / shares if shares > 0 else 0
+            total_buy_with_fee += cost_with_fee
+            if code not in buy_queues:
+                buy_queues[code] = []
+            buy_queues[code].append([shares, cost_per_share])
+
+        elif action == '卖出':
+            proceeds_after_fee = amount - fee
+            proceeds_per_share = proceeds_after_fee / shares if shares > 0 else 0
+            total_sell_after_fee += proceeds_after_fee
+
+            # FIFO 匹配卖出
+            if code in buy_queues:
+                remaining_to_sell = shares
+                while remaining_to_sell > 0 and buy_queues[code]:
+                    lot = buy_queues[code][0]  # 取最早的批次
+                    lot_shares, lot_cost = lot
+                    matched = min(remaining_to_sell, lot_shares)
+                    realized_pnl += matched * (proceeds_per_share - lot_cost)
+                    remaining_to_sell -= matched
+                    lot[0] -= matched
+                    if lot[0] <= 0:
+                        buy_queues[code].pop(0)
+
+    # 净外部投入本金 = 总买入(含费) - 总卖出(费后)
+    net_external_capital = total_buy_with_fee - total_sell_after_fee
+
+    # 未实现盈亏
+    if current_shares > 0 and latest_price is not None:
+        current_market_value = current_shares * latest_price
+        unrealized_pnl = current_market_value - current_cost
+    else:
+        current_market_value = current_cost
+        unrealized_pnl = 0
+
+    total_pnl = realized_pnl + unrealized_pnl
+    total_pnl_pct = (total_pnl / net_external_capital) * 100 if net_external_capital > 0 else 0
+
+    return {
+        'realized_pnl': realized_pnl,
+        'unrealized_pnl': unrealized_pnl,
+        'total_pnl': total_pnl,
+        'net_external_capital': net_external_capital,
+        'total_pnl_pct': total_pnl_pct,
+        'current_market_value': current_market_value
+    }
+
+
 def generate_html(etf_data=None):
     """生成HTML页面"""
     # 加载数据
@@ -307,13 +391,6 @@ def generate_html(etf_data=None):
     week_date = latest_week.get('week_date', '')
     update_date = weekly.get('metadata', {}).get('last_updated', week_date)
     update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # 计算实际初始资金：交易记录中累计买入金额（永久固定）
-    trade_list = trades.get('trades', [])
-    initial_principal = sum(t['amount'] for t in trade_list if t['action'] == '买入')  # 92,366元
-
-    # 累积已实现盈亏（从pnl_history读取，调仓时累加）
-    realized_pnl = pnl.get('summary', {}).get('total_realized_pnl', 0)
 
     # 当前持仓信息
     current_shares = current_pos.get('total_shares', 0)
@@ -335,13 +412,31 @@ def generate_html(etf_data=None):
     if latest_price is None and current_shares > 0:
         latest_price = current_pos.get('avg_cost', 0)
 
-    # 计算当前市值（使用最新价格）
-    current_market_value = current_shares * latest_price if latest_price and current_shares > 0 else current_cost
+    # 从交易记录计算累积盈亏（FIFO 匹配已实现盈亏）
+    trade_list = trades.get('trades', [])
+    pnl_result = calculate_cumulative_pnl(trade_list, current_cost, current_shares, latest_price)
 
-    # 通用公式：累积盈亏 = 已实现盈亏 + (当前市值 - 当前成本)
-    unrealized_pnl = current_market_value - current_cost
-    total_pnl = realized_pnl + unrealized_pnl
-    total_pnl_pct = (total_pnl / initial_principal) * 100 if initial_principal > 0 else 0
+    realized_pnl = pnl_result['realized_pnl']
+    unrealized_pnl = pnl_result['unrealized_pnl']
+    total_pnl = pnl_result['total_pnl']
+    total_pnl_pct = pnl_result['total_pnl_pct']
+    current_market_value = pnl_result['current_market_value']
+
+    # 更新 pnl_history.json 以保持数据一致
+    pnl['summary'] = {
+        'total_realized_pnl': round(realized_pnl, 2),
+        'total_unrealized_pnl': round(unrealized_pnl, 2),
+        'total_pnl': round(total_pnl, 2),
+        'total_pnl_pct': round(total_pnl_pct, 2),
+        'net_external_capital': round(pnl_result['net_external_capital'], 2),
+        'current_market_value': round(current_market_value, 2),
+        'current_cost': round(current_cost, 2),
+        'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    pnl['metadata']['last_updated'] = datetime.now().strftime('%Y-%m-%d')
+
+    with open(os.path.join(DATA_DIR, 'pnl_history.json'), 'w', encoding='utf-8') as f:
+        json.dump(pnl, f, ensure_ascii=False, indent=2)
 
     # 交易记录HTML
     trade_list = trades.get('trades', [])
@@ -371,7 +466,7 @@ def generate_html(etf_data=None):
             </div>
             <div class="holding-pnl">
                 <div class="pnl-value {pnl_class}">{pnl_str}</div>
-                <div class="holding-label">持仓收益</div>
+                <div class="holding-label">累积收益</div>
             </div>
         </div>"""
 

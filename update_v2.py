@@ -75,7 +75,7 @@ def generate_html():
             </div>
             <div class="holding-pnl">
                 <div class="pnl-value {pnl_class}">{pnl_str}</div>
-                <div class="holding-label">持仓收益</div>
+                <div class="holding-label">累积收益</div>
             </div>
         </div>"""
 
