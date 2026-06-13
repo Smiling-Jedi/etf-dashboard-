@@ -439,7 +439,6 @@ def generate_html(etf_data=None):
         json.dump(pnl, f, ensure_ascii=False, indent=2)
 
     # 交易记录HTML
-    trade_list = trades.get('trades', [])
     if trade_list:
         t = trade_list[-1]
         trade_html = f'''            <a href="trades.html" class="trade-item-link">
@@ -915,14 +914,14 @@ print(json.dumps(results, indent=2))
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f1:
             f1.write(verify_script_1)
             f1.flush()
-            result1 = subprocess.run(['python3', f1.name], capture_output=True, text=True, timeout=60)
+            result1 = subprocess.run(['/usr/bin/python3', f1.name], capture_output=True, text=True, timeout=60)
             os.unlink(f1.name)
 
         # 运行验证脚本2
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f2:
             f2.write(verify_script_2)
             f2.flush()
-            result2 = subprocess.run(['python3', f2.name], capture_output=True, text=True, timeout=60)
+            result2 = subprocess.run(['/usr/bin/python3', f2.name], capture_output=True, text=True, timeout=60)
             os.unlink(f2.name)
 
         # 解析结果
