@@ -1,7 +1,7 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-06-12"
+    "last_updated": "2026-06-19"
   },
   "scores": [
     {
@@ -433,6 +433,49 @@
       "should_trade": true,
       "signal": "BUY",
       "action": "调仓至 红利低波ETF，下周一执行调仓"
+    },
+    {
+      "week_date": "2026-06-19",
+      "trade_date": "2026-06-19",
+      "next_trade_date": "2026-06-22",
+      "rankings": [
+        {
+          "rank": 1,
+          "code": "159949",
+          "name": "创业板50ETF",
+          "score": 0.3994958754612583,
+          "weekly_change": 2.286282306163012
+        },
+        {
+          "rank": 2,
+          "code": "512890",
+          "name": "红利低波ETF",
+          "score": 0.2621475253273881,
+          "weekly_change": -2.1929824561403466
+        },
+        {
+          "rank": 3,
+          "code": "513100",
+          "name": "纳指ETF",
+          "score": 0.19572363416281333,
+          "weekly_change": -0.5704256252742401
+        },
+        {
+          "rank": 4,
+          "code": "518880",
+          "name": "黄金ETF",
+          "score": -0.8573670349514595,
+          "weekly_change": -0.5470581667969321
+        }
+      ],
+      "holding_code": "513100",
+      "holding_score": 0.19572363416281333,
+      "top_code": "159949",
+      "top_score": 0.3994958754612583,
+      "threshold": 0.29358545124422,
+      "should_trade": true,
+      "signal": "BUY",
+      "action": "调仓至 创业板50ETF，下周一执行调仓"
     }
   ]
 }
