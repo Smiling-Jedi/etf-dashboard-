@@ -1,20 +1,20 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-06-08",
+    "last_updated": "2026-06-22",
     "version": "1.0"
   },
   "current": {
-    "code": "513100",
-    "name": "纳指ETF",
-    "total_shares": 78400,
-    "avg_cost": 2.113,
-    "total_cost": 165652.4,
-    "total_fees": 33.74,
-    "total_invested": 146125.73,
-    "first_buy_date": "2026-05-11",
-    "last_buy_date": "2026-06-08",
-    "holding_days": 28
+    "code": "159949",
+    "name": "创业板50ETF",
+    "total_shares": 100000,
+    "avg_cost": 2.0865,
+    "total_cost": 208650.0,
+    "total_fees": 62.6,
+    "total_invested": 194707.73,
+    "first_buy_date": "2026-06-22",
+    "last_buy_date": "2026-06-22",
+    "holding_days": 0
   },
   "history": [
     {
@@ -45,6 +45,14 @@
       "avg_cost": 2.113,
       "total_cost": 165652.4,
       "note": "资金扩容第1档，加仓25,000份"
+    },
+    {
+      "date": "2026-06-22",
+      "code": "159949",
+      "total_shares": 100000,
+      "avg_cost": 2.0865,
+      "total_cost": 208650.0,
+      "note": "策略B轮动：卖出512890后买入159949，差额2,787元追加为成本"
     }
   ]
 }

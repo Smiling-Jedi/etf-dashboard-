@@ -1,19 +1,43 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-04-03"
+    "last_updated": "2026-06-22"
   },
   "initial_capital": 100000,
-  "current_capital": 100000,
-  "total_invested": 92366.00,
-  "cash_balance": 7412.29,
+  "current_capital": 194707.73,
+  "total_invested": 194707.73,
+  "cash_balance": 2787,
   "capital_changes": [
     {
       "date": "2026-03-27",
       "amount": 100000,
       "type": "initial",
       "note": "初始资金"
+    },
+    {
+      "date": "2026-05-11",
+      "amount": 567.73,
+      "type": "追加",
+      "note": "159949→513100调仓差额"
+    },
+    {
+      "date": "2026-06-08",
+      "amount": 53207.96,
+      "type": "追加",
+      "note": "513100资金扩容第1档"
+    },
+    {
+      "date": "2026-06-15",
+      "amount": 45795,
+      "type": "追加",
+      "note": "513100→512890调仓差额"
+    },
+    {
+      "date": "2026-06-22",
+      "amount": 2787,
+      "type": "追加",
+      "note": "512890→159949调仓差额"
     }
   ],
-  "notes": "如追加资金，在此添加记录"
+  "notes": "累计净投入=初始资金+每次调仓/追加差额"
 }
