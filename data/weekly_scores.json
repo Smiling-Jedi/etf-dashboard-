@@ -644,7 +644,7 @@
       "holding_score": -1.6672161465485684,
       "top_code": "512890",
       "top_score": 0.8685528039163164,
-      "threshold": 1.3028292058744746,
+      "threshold": -2.5008242198228525,
       "should_trade": true,
       "signal": "BUY",
       "action": "调仓至 红利低波ETF，下周一执行调仓"
