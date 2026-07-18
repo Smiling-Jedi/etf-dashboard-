@@ -207,28 +207,37 @@ def update_weekly_scores(factors, sorted_etfs, positions_file):
     if current_holding and current_holding in factors:
         holding_score = factors[current_holding]['total_score']
     else:
-        holding_score = sorted_etfs[0][1]['total_score'] if sorted_etfs else 0
+        holding_score = 0  # 空仓时持仓得分视为0
 
     top_score = sorted_etfs[0][1]['total_score'] if sorted_etfs else 0
     top_code = sorted_etfs[0][0] if sorted_etfs else None
     top_name = sorted_etfs[0][1]['name'] if sorted_etfs else ''
 
     # 1.5倍阈值判断
-    if current_holding and current_holding == top_code:
+    if not current_holding:
+        # 空仓状态：第1名得分>0则买入，否则观望
+        threshold = top_score * SWITCH_THRESHOLD
+        should_trade = top_score > 0
+        signal = f"买入 {top_name}" if should_trade else "空仓观望"
+    elif current_holding == top_code:
+        # 当前持仓已经是第1名，继续持有
         should_trade = False
+        threshold = holding_score * SWITCH_THRESHOLD
         signal = f"继续持有 {ETF_POOL.get(current_holding, current_holding)}"
-        threshold = holding_score * SWITCH_THRESHOLD if holding_score > 0 else 0
     else:
-        threshold = holding_score * SWITCH_THRESHOLD if holding_score > 0 else 0
-        if holding_score <= 0:
-            should_trade = top_score > 0 or (top_score > threshold if threshold > 0 else True)
-        else:
+        # 计算阈值：当前持仓得分 × 1.5
+        threshold = holding_score * SWITCH_THRESHOLD
+        if holding_score > 0:
+            # 当前持仓为正：新第1名必须超过阈值的1.5倍才调仓
             should_trade = top_score > threshold
+        else:
+            # 当前持仓为负：新第1名>0，或新第1名明显强于当前持仓（>当前×1.5）才调仓
+            should_trade = (top_score > 0) or (top_score > threshold)
 
         if should_trade:
             signal = f"调仓至 {top_name}"
         else:
-            signal = f"继续持有 {ETF_POOL.get(current_holding, current_holding) if current_holding else top_name}"
+            signal = f"继续持有 {ETF_POOL.get(current_holding, current_holding)}"
 
     # 获取日期
     friday_date = get_last_friday()
@@ -244,10 +253,10 @@ def update_weekly_scores(factors, sorted_etfs, positions_file):
         'holding_score': float(holding_score),
         'top_code': top_code,
         'top_score': float(top_score),
-        'threshold': float(threshold if current_holding and holding_score > 0 else top_score * SWITCH_THRESHOLD),
+        'threshold': float(threshold),
         'should_trade': bool(should_trade),
         'signal': 'BUY' if should_trade else 'HOLD',
-        'action': signal + '，下周一' + ('执行调仓' if should_trade else '无操作')
+        'action': signal + '，下周一' + (('执行买入' if not current_holding else '执行调仓') if should_trade else '无操作')
     }
 
     # 读取现有数据或创建新结构
@@ -396,6 +405,7 @@ def generate_html(etf_data=None):
     current_shares = current_pos.get('total_shares', 0)
     current_cost = current_pos.get('total_cost', 0)  # 当前持仓成本
     current_code = current_pos.get('code', '')
+    total_invested = current_pos.get('total_invested', current_cost)  # 累计净投入（收益率分母）
 
     # 从etf_data获取当前持仓的最新价格
     latest_price = None
@@ -415,6 +425,10 @@ def generate_html(etf_data=None):
     # 从交易记录计算累积盈亏（FIFO 匹配已实现盈亏）
     trade_list = trades.get('trades', [])
     pnl_result = calculate_cumulative_pnl(trade_list, current_cost, current_shares, latest_price)
+
+    # 使用累计净投入作为收益率分母（比 net_external_capital 更稳定，不受频繁调仓影响）
+    pnl_result['total_pnl_pct'] = (pnl_result['total_pnl'] / total_invested) * 100 if total_invested > 0 else 0
+    pnl_result['net_external_capital'] = total_invested
 
     realized_pnl = pnl_result['realized_pnl']
     unrealized_pnl = pnl_result['unrealized_pnl']
@@ -1290,7 +1304,12 @@ def git_push():
             print("⚠️ 没有变更需要提交")
             return True
 
-        subprocess.run(['git', 'add', 'index.html', 'trades.html', 'history.html', 'data/'], check=True)
+        subprocess.run(['git', 'add', 'index.html', 'trades.html', 'history.html'], check=True)
+        subprocess.run(['git', 'add',
+                        'data/weekly_scores.json',
+                        'data/trades.json',
+                        'data/positions.json',
+                        'data/pnl_history.json'], check=True)
         today = datetime.now().strftime('%Y-%m-%d')
         subprocess.run(['git', 'commit', '-m', f'Update: {today} ETF data'], check=True)
         subprocess.run(['git', 'push', 'origin', 'main'], check=True)
