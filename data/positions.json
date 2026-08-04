@@ -1,20 +1,21 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-07-06",
+    "last_updated": "2026-08-04",
     "version": "1.0"
   },
   "current": {
-    "code": "159949",
-    "name": "创业板50ETF",
-    "total_shares": 130000,
-    "avg_cost": 2.0406,
-    "total_cost": 265277.0,
-    "total_fees": 79.58,
-    "total_invested": 251334.73,
-    "first_buy_date": "2026-06-22",
-    "last_buy_date": "2026-07-06",
-    "holding_days": 14
+    "code": "512890",
+    "name": "红利低波ETF",
+    "total_shares": 182000,
+    "avg_cost": 1.1725,
+    "total_cost": 213396.0,
+    "total_fees": 64.00999999999999,
+    "total_invested": 213460.01,
+    "first_buy_date": "2026-07-20",
+    "last_buy_date": "2026-07-20",
+    "holding_days": 15,
+    "note": "策略B轮动：7/20卖出159949(130,000股@1.65估算)后分2笔买入"
   },
   "history": [
     {
@@ -61,6 +62,14 @@
       "avg_cost": 2.0406,
       "total_cost": 265277.0,
       "note": "策略B资金扩容：加仓30,000份@1.887，摊薄成本"
+    },
+    {
+      "date": "2026-07-20",
+      "code": "512890",
+      "total_shares": 182000,
+      "avg_cost": 1.1725,
+      "total_cost": 213396.0,
+      "note": "策略B轮动：卖出创业板50ETF后换入红利低波ETF（92,000@1.173 + 90,000@1.172）"
     }
   ]
 }

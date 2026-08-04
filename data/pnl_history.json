@@ -5,14 +5,14 @@
     "base_date": "2026-03-27"
   },
   "summary": {
-    "total_realized_pnl": 19289.71,
-    "total_unrealized_pnl": -61177.0,
-    "total_pnl": -41887.29,
-    "total_pnl_pct": -16.67,
-    "net_external_capital": 251334.73,
-    "current_market_value": 204100.0,
-    "current_cost": 265277.0,
-    "last_updated": "2026-08-04 14:15:07"
+    "total_realized_pnl": -31614.22,
+    "total_unrealized_pnl": 5550.0,
+    "total_pnl": -26064.22,
+    "total_pnl_pct": -12.21,
+    "net_external_capital": 213460.01,
+    "current_market_value": 218946.0,
+    "current_cost": 213396.0,
+    "last_updated": "2026-08-04 14:37:41"
   },
   "daily_values": [
     {

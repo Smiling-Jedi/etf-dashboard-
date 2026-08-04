@@ -683,14 +683,15 @@
           "weekly_change": -2.5700934579439227
         }
       ],
-      "holding_code": "159949",
-      "holding_score": -1.5770235609494168,
+      "holding_code": "512890",
+      "holding_score": 1.1299802227235223,
       "top_code": "512890",
       "top_score": 1.1299802227235223,
       "threshold": -2.365535341424125,
-      "should_trade": true,
-      "signal": "BUY",
-      "action": "调仓至 红利低波ETF，下周一执行调仓"
+      "should_trade": false,
+      "signal": "HOLD",
+      "action": "继续持有红利低波ETF，下周一无操作",
+      "note": "2026-08-04修正：7/20已轮动至512890，原记录持仓字段滞后"
     },
     {
       "week_date": "2026-07-31",
@@ -726,14 +727,14 @@
           "weekly_change": -0.8212255211623387
         }
       ],
-      "holding_code": "159949",
-      "holding_score": -1.4977634698802371,
+      "holding_code": "512890",
+      "holding_score": 1.2838042700412595,
       "top_code": "512890",
       "top_score": 1.2838042700412595,
-      "threshold": -2.246645204820356,
-      "should_trade": true,
-      "signal": "BUY",
-      "action": "调仓至 红利低波ETF，下周一执行调仓"
+      "threshold": 1.9257064050618893,
+      "should_trade": false,
+      "signal": "HOLD",
+      "action": "继续持有 红利低波ETF，下周一无操作"
     }
   ]
 }
