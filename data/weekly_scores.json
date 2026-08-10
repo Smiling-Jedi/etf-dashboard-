@@ -743,41 +743,41 @@
       "rankings": [
         {
           "rank": 1,
-          "code": "513100",
-          "name": "纳指ETF",
-          "score": 0.6621939861172305,
-          "weekly_change": 0.9803921568627416
+          "code": "518880",
+          "name": "黄金ETF",
+          "score": 0.626764683269889,
+          "weekly_change": 1.270805218173665
         },
         {
           "rank": 2,
-          "code": "518880",
-          "name": "黄金ETF",
-          "score": 0.32940121110834486,
-          "weekly_change": 1.1028993746446725
+          "code": "513100",
+          "name": "纳指ETF",
+          "score": 0.5368170109718584,
+          "weekly_change": -0.22065313327448433
         },
         {
           "rank": 3,
           "code": "512890",
           "name": "红利低波ETF",
-          "score": 0.2612967488794215,
-          "weekly_change": -0.6861063464837058
+          "score": -0.13298687166428508,
+          "weekly_change": 0.3454231433505983
         },
         {
           "rank": 4,
           "code": "159949",
           "name": "创业板50ETF",
-          "score": -1.2528919461049965,
-          "weekly_change": 0.9014423076923128
+          "score": -1.0305948225774622,
+          "weekly_change": -1.19118522930316
         }
       ],
-      "holding_code": "512890",
-      "holding_score": 0.2612967488794215,
-      "top_code": "513100",
-      "top_score": 0.6621939861172305,
-      "threshold": 0.3919451233191322,
-      "should_trade": true,
-      "signal": "BUY",
-      "action": "调仓至 纳指ETF，下周一执行调仓"
+      "holding_code": "513100",
+      "holding_score": 0.5368170109718584,
+      "top_code": "518880",
+      "top_score": 0.626764683269889,
+      "threshold": 0.8052255164577876,
+      "should_trade": false,
+      "signal": "HOLD",
+      "action": "继续持有 纳指ETF，下周一无操作"
     }
   ]
 }
