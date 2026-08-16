@@ -185,6 +185,39 @@ def get_last_friday():
         return (today - timedelta(days=days_to_friday[weekday])).strftime('%Y-%m-%d')
 
 
+def is_scoring_window():
+    """
+    是否处于打分窗口（允许写入周评分记录）。
+    策略设定：周五收盘后打分。只有 周五15:00后 / 周六 / 周日 三天，
+    行情数据等于周五收盘，写入是安全的；
+    周一至周四、周五盘中运行，数据含当周盘中信息，
+    若写入会用非周五数据覆盖周五记录（2026-08-11 曾因此篡改 8/7 记录）。
+    """
+    today = datetime.now()
+    weekday = today.weekday()
+    if weekday == 4 and today.hour >= 15:
+        return True
+    return weekday in (5, 6)
+
+
+def check_ledger_freshness(positions_file):
+    """
+    信号生成前校验账本新鲜度：trades.json 最新交易日期必须 <= positions 最后更新日。
+    否则说明成交后没同步持仓账本，信号会基于陈旧持仓计算
+    （2026-06-19 曾因此发出错误 BUY 信号，导致 6/22 错误调仓）。
+    返回 (是否新鲜, 最新交易日, 账本更新日)。
+    """
+    with open(positions_file, 'r', encoding='utf-8') as f:
+        positions = json.load(f)
+    trades_file = os.path.join(DATA_DIR, 'trades.json')
+    with open(trades_file, 'r', encoding='utf-8') as f:
+        trades = json.load(f)
+    trade_dates = [t.get('date', '') for t in trades.get('trades', []) if t.get('date')]
+    last_trade = max(trade_dates) if trade_dates else ''
+    pos_updated = positions.get('metadata', {}).get('last_updated', '')
+    return (last_trade <= pos_updated, last_trade, pos_updated)
+
+
 def update_weekly_scores(factors, sorted_etfs, positions_file):
     """更新weekly_scores.json文件"""
     # 读取当前持仓
@@ -1362,15 +1395,35 @@ def main():
     print("\n🔍 正在与回测脚本进行评分验算...")
     verify_scores_with_backtest(factors, etf_data)
 
-    # Step 3: 更新weekly_scores.json
+    # Step 3: 更新weekly_scores.json（双闸门：打分窗口 + 账本新鲜度）
     positions_file = os.path.join(DATA_DIR, 'positions.json')
-    week_data = update_weekly_scores(factors, sorted_etfs, positions_file)
+    scores_file = os.path.join(DATA_DIR, 'weekly_scores.json')
+
+    scoring_ok = is_scoring_window()
+    if not scoring_ok:
+        print(f"\n🔒 今天不在打分窗口（仅周五15:00后/周六/周日可写入周评分）")
+        print(f"   本次排名仅供参考，不写入 weekly_scores.json，历史记录保持不变")
+
+    ledger_fresh, last_trade, pos_updated = check_ledger_freshness(positions_file)
+    if scoring_ok and not ledger_fresh:
+        print(f"\n⚠️ 账本疑似未同步：最新交易 {last_trade}，但 positions.json 最后更新于 {pos_updated}")
+        print(f"   请先核对成交记录并更新 positions.json，再重新运行。本次不写入周评分。")
+
+    if scoring_ok and ledger_fresh:
+        week_data = update_weekly_scores(factors, sorted_etfs, positions_file)
+    else:
+        # 只读模式：沿用已存档的最近一周信号做展示
+        with open(scores_file, 'r', encoding='utf-8') as f:
+            stored = json.load(f)
+        week_data = stored.get('scores', [{}])[-1] if stored.get('scores') else {}
+        if week_data:
+            print(f"\n📌 当前有效信号仍为 {week_data.get('week_date', '-')} 存档：{week_data.get('action', '-')}")
 
     print(f"\n📋 交易建议:")
-    print(f"  信号: {week_data['signal']}")
-    print(f"  操作: {week_data['action']}")
-    if week_data['should_trade']:
-        print(f"  ⚠️ 下周一需要调仓: 卖出 {week_data.get('holding_code', '-')}, 买入 {week_data['top_code']}")
+    print(f"  信号: {week_data.get('signal', '-')}")
+    print(f"  操作: {week_data.get('action', '-')}")
+    if week_data.get('should_trade'):
+        print(f"  ⚠️ 下周一需要调仓: 卖出 {week_data.get('holding_code', '-')}, 买入 {week_data.get('top_code')}")
 
     # Step 4: 生成HTML
     print("\n🎨 正在生成HTML页面...")
