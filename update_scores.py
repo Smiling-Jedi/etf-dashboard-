@@ -230,6 +230,11 @@ def update_weekly_scores(factors, sorted_etfs, positions_file):
     with open(positions_file, 'r', encoding='utf-8') as f:
         positions = json.load(f)
     current_holding = positions.get('current', {}).get('code', None)
+    # 同标的别名归一：实际执行代码可能不是策略跟踪代码。
+    # 2026-08-22：Jedi 8/17买成518800国泰黄金（策略标的518880华安黄金），
+    # 不归一会被当成非池内持仓，holding_score=0 导致每周重复喊调仓。
+    HOLDING_ALIASES = {'518800': '518880'}  # 国泰黄金 ≈ 华安黄金，同跟踪AU9999
+    current_holding = HOLDING_ALIASES.get(current_holding, current_holding)
 
     # 计算排名数据
     rankings = []
