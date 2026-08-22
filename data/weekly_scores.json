@@ -856,14 +856,14 @@
           "weekly_change": 1.8181818181818077
         }
       ],
-      "holding_code": "513100",
-      "holding_score": -0.1549350699406861,
+      "holding_code": "518880",
+      "holding_score": 1.21215405460662,
       "top_code": "518880",
       "top_score": 1.21215405460662,
-      "threshold": -0.23240260491102915,
-      "should_trade": true,
-      "signal": "BUY",
-      "action": "调仓至 黄金ETF，下周一执行调仓"
+      "threshold": 1.81823108190993,
+      "should_trade": false,
+      "signal": "HOLD",
+      "action": "继续持有 黄金ETF，下周一无操作"
     }
   ]
 }
