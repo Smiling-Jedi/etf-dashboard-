@@ -1,7 +1,7 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-10-09"
+    "last_updated": "2026-10-16"
   },
   "scores": [
     {
@@ -1119,6 +1119,49 @@
       "top_code": "513100",
       "top_score": 1.4282864398610784,
       "threshold": 2.1424296597916177,
+      "should_trade": false,
+      "signal": "HOLD",
+      "action": "继续持有 纳指ETF，下周一无操作"
+    },
+    {
+      "week_date": "2026-10-16",
+      "trade_date": "2026-10-16",
+      "next_trade_date": "2026-10-19",
+      "rankings": [
+        {
+          "rank": 1,
+          "code": "513100",
+          "name": "纳指ETF",
+          "score": 1.2237514556645892,
+          "weekly_change": -2.232518955349616
+        },
+        {
+          "rank": 2,
+          "code": "512890",
+          "name": "红利低波ETF",
+          "score": 0.38404247705503164,
+          "weekly_change": 0.0
+        },
+        {
+          "rank": 3,
+          "code": "518880",
+          "name": "黄金ETF",
+          "score": -0.1273911408725621,
+          "weekly_change": -0.023601604909140317
+        },
+        {
+          "rank": 4,
+          "code": "159949",
+          "name": "创业板50ETF",
+          "score": -1.4804027918470586,
+          "weekly_change": -8.492569002123151
+        }
+      ],
+      "holding_code": "513100",
+      "holding_score": 1.2237514556645892,
+      "top_code": "513100",
+      "top_score": 1.2237514556645892,
+      "threshold": 1.8356271834968838,
       "should_trade": false,
       "signal": "HOLD",
       "action": "继续持有 纳指ETF，下周一无操作"
