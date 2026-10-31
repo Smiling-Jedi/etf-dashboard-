@@ -1,7 +1,7 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-10-23"
+    "last_updated": "2026-10-30"
   },
   "scores": [
     {
@@ -1208,6 +1208,49 @@
       "should_trade": false,
       "signal": "HOLD",
       "action": "继续持有 纳指ETF，下周一无操作"
+    },
+    {
+      "week_date": "2026-10-30",
+      "trade_date": "2026-10-30",
+      "next_trade_date": "2026-11-02",
+      "rankings": [
+        {
+          "rank": 1,
+          "code": "512890",
+          "name": "红利低波ETF",
+          "score": 0.9409085400989285,
+          "weekly_change": 3.497085761865115
+        },
+        {
+          "rank": 2,
+          "code": "518880",
+          "name": "黄金ETF",
+          "score": 0.36607132333258996,
+          "weekly_change": -1.0245151847786294
+        },
+        {
+          "rank": 3,
+          "code": "513100",
+          "name": "纳指ETF",
+          "score": 0.3110818485150498,
+          "weekly_change": -0.1783325902808719
+        },
+        {
+          "rank": 4,
+          "code": "159949",
+          "name": "创业板50ETF",
+          "score": -1.6180617119465681,
+          "weekly_change": -10.268948655256727
+        }
+      ],
+      "holding_code": "513100",
+      "holding_score": 0.3110818485150498,
+      "top_code": "512890",
+      "top_score": 0.9409085400989285,
+      "threshold": 0.4666227727725747,
+      "should_trade": true,
+      "signal": "BUY",
+      "action": "调仓至 红利低波ETF，下周一执行调仓"
     }
   ]
 }
