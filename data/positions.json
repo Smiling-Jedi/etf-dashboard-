@@ -1,21 +1,21 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-09-30",
+    "last_updated": "2026-11-04",
     "version": "1.0"
   },
   "current": {
-    "code": "513100",
-    "name": "纳指ETF国泰",
-    "total_shares": 110000,
-    "avg_cost": 2.3123,
-    "total_cost": 254357.1,
-    "total_fees": 76.31,
-    "total_invested": 254433.41,
-    "first_buy_date": "2026-09-28",
-    "last_buy_date": "2026-09-28",
+    "code": "512890",
+    "name": "红利低波ETF华泰柏瑞",
+    "total_shares": 200000,
+    "avg_cost": 1.2291,
+    "total_cost": 245820.0,
+    "total_fees": 73.75,
+    "total_invested": 245893.75,
+    "first_buy_date": "2026-11-04",
+    "last_buy_date": "2026-11-04",
     "holding_days": 0,
-    "note": "策略B轮动：9/28轮入（红利低波全出换入，Jedi 9/30截图补录）；费用万三估算"
+    "note": "策略B本周轮入，Jedi11/4告知20万股@1.2291；具体成交日待对账；费用万三估算"
   },
   "history": [
     {
@@ -105,6 +105,12 @@
       "avg_cost": 1.18262,
       "total_cost": 0,
       "note": "9/28轮出全清210,000@1.180（微亏-0.22%）"
+    },
+    {
+      "date": "2026-11-04",
+      "code": "513100",
+      "total_shares": 0,
+      "note": "策略B本周轮出110,000份，Jedi11/4告知；具体成交日/价格待对账"
     }
   ]
 }

@@ -1,18 +1,18 @@
 {
   "metadata": {
     "created_at": "2026-04-03",
-    "last_updated": "2026-10-31",
+    "last_updated": "2026-11-04",
     "base_date": "2026-03-27"
   },
   "summary": {
-    "total_realized_pnl": -38083.32,
-    "total_unrealized_pnl": -8067.1,
-    "total_pnl": -46150.42,
-    "total_pnl_pct": -18.14,
-    "net_external_capital": 254433.41,
-    "current_market_value": 246290.0,
-    "current_cost": 254357.1,
-    "last_updated": "2026-10-31 13:08:40"
+    "total_realized_pnl": -45970.72,
+    "total_unrealized_pnl": 580.0,
+    "total_pnl": -45390.72,
+    "total_pnl_pct": -18.46,
+    "net_external_capital": 245893.75,
+    "current_market_value": 246400.0,
+    "current_cost": 245820.0,
+    "last_updated": "2026-11-04 23:12:09"
   },
   "daily_values": [
     {
